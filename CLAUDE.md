@@ -7,12 +7,14 @@ Edge gateway project: a Contec BX-220 box PC reads a manufacturing machine's PLC
 - `gateway/ipc_gateway/` the gateway: `config.py` (YAML loading and validation), `plc.py` (Modbus reads and writes, value decoding), `commands.py` (allowlist, expiry, dedupe, mode check), `app.py` (main loop, MQTT).
 - `gateway/config/gateway.example.yaml` the tag map and settings. Real `gateway.yaml` is git-ignored.
 - `tools/sim_plc.py` simulated PLC with the same register map. `tools/send_command.py` bench command sender.
-- `docs/` architecture, data contract, hardware notes, decision log. Update `docs/decisions.md` when a decision changes.
+- `cloud/` home-lab stack: `docker-compose.yml` (Mosquitto, TimescaleDB, ingest, Grafana), schema in `db/init/01-schema.sql`, ingest in `ingest/ingest.py`, dashboard in `grafana/dashboards/machine.json`.
+- `docs/` architecture, home-lab setup, data contract, hardware notes, decision log. Update `docs/decisions.md` when a decision changes.
 
 ## Commands
 
 - Tests: `cd gateway && python -m pytest`
-- Bench run: start Mosquitto, `python tools/sim_plc.py --port 5020`, then `cd gateway && python -m ipc_gateway --config config/gateway.yaml`
+- Cloud stack: `cd cloud && cp .env.example .env && docker compose up -d --build`; Grafana on :3000. Schema changes need `docker compose down -v` (wipes data).
+- Bench run: start the broker, `python tools/sim_plc.py --port 5020`, then `cd gateway && python -m ipc_gateway --config config/gateway.yaml`
 
 ## Target environment
 
@@ -35,6 +37,12 @@ Edge gateway project: a Contec BX-220 box PC reads a manufacturing machine's PLC
 - Topics: `factory/{site}/{machine_id}/{telemetry|state|status|cmd|cmd/ack}`. See `docs/data-contract.md` before changing a payload.
 - Counters such as `part_count` are published cumulative.
 
+## Home lab
+
+This PC runs `cloud/`; a spare Windows laptop runs the simulated PLC (`tools/run-sim.bat`); the BX-220 runs the gateway. A Keyence KV-8000 is on hand for one session of real-PLC testing later (Host Link on port 8501; Modbus TCP support unconfirmed). The final machine uses a different PLC.
+
+The home-lab broker is open (no TLS, no auth). Never expose it beyond the LAN.
+
 ## Open questions
 
-PLC make, model and protocol (Ethernet or RS-232); register map; cloud platform; whether the old HMI keeps running; ESU from Contec.
+PLC on the final machine: make, model and protocol (Ethernet or RS-232); register map; production cloud platform; whether the old HMI keeps running; ESU from Contec.

@@ -1,0 +1,667 @@
+{
+  "uid": "ipc-machine",
+  "title": "Machine overview",
+  "tags": [
+    "ipc"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "editable": false,
+  "graphTooltip": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "machine",
+        "label": "Machine",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "timescale"
+        },
+        "query": "SELECT machine_id FROM gateway_status ORDER BY machine_id",
+        "definition": "SELECT machine_id FROM gateway_status ORDER BY machine_id",
+        "refresh": 2,
+        "current": {},
+        "includeAll": false,
+        "multi": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Gateway",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "timescale"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "timescale"
+          },
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT state FROM gateway_status WHERE machine_id = '$machine'"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "online": {
+                  "text": "Online",
+                  "color": "green",
+                  "index": 0
+                },
+                "offline": {
+                  "text": "Offline",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Last reading",
+      "gridPos": {
+        "x": 4,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "timescale"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "timescale"
+          },
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT EXTRACT(EPOCH FROM now() - max(ts)) AS age FROM telemetry WHERE machine_id = '$machine' AND ts > now() - interval '1 day'"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          },
+          "unit": "s",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "orientation": "auto"
+      },
+      "description": "Seconds since the newest reading. Over 5 s means the gateway, PLC or network has stalled. Relies on the gateway clock being correct."
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Motor",
+      "gridPos": {
+        "x": 8,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "timescale"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "timescale"
+          },
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT value FROM telemetry WHERE machine_id = '$machine' AND metric = 'motor_running' ORDER BY ts DESC LIMIT 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "Running",
+                  "color": "green",
+                  "index": 0
+                },
+                "0": {
+                  "text": "Stopped",
+                  "color": "text",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Mode",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "timescale"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "timescale"
+          },
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT value_text FROM telemetry WHERE machine_id = '$machine' AND metric = 'mode' ORDER BY ts DESC LIMIT 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "REMOTE": {
+                  "text": "Remote",
+                  "color": "blue",
+                  "index": 0
+                },
+                "LOCAL": {
+                  "text": "Local",
+                  "color": "text",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Part count",
+      "gridPos": {
+        "x": 16,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "timescale"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "timescale"
+          },
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT value FROM telemetry WHERE machine_id = '$machine' AND metric = 'part_count' ORDER BY ts DESC LIMIT 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Fault",
+      "gridPos": {
+        "x": 20,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "timescale"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "timescale"
+          },
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT value FROM telemetry WHERE machine_id = '$machine' AND metric = 'fault_code' ORDER BY ts DESC LIMIT 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "None",
+                  "color": "green",
+                  "index": 0
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "orientation": "auto"
+      },
+      "description": "PLC fault code. 9 in the simulator means the gateway heartbeat was lost."
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Motor speed",
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "timescale"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "timescale"
+          },
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": "time_series",
+          "rawSql": "SELECT ts AS time, value AS \"rpm\" FROM telemetry WHERE machine_id = '$machine' AND metric = 'motor_speed_rpm' AND $__timeFilter(ts) ORDER BY ts"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": 5000
+          },
+          "unit": "rotrpm"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Current and temperature",
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "timescale"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "timescale"
+          },
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": "time_series",
+          "rawSql": "SELECT ts AS time, CASE metric WHEN 'motor_current_a' THEN 'Current (A)' ELSE 'Spindle temp (°C)' END AS metric, value FROM telemetry WHERE machine_id = '$machine' AND metric IN ('motor_current_a','spindle_temp_c') AND $__timeFilter(ts) ORDER BY ts"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": 5000
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "Recent commands",
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "timescale"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "timescale"
+          },
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT issued_at AS \"Issued\", command AS \"Command\", issued_by AS \"By\", status AS \"Status\", coalesce(reason,'') AS \"Reason\" FROM commands WHERE machine_id = '$machine' ORDER BY issued_at DESC LIMIT 20"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "executed": {
+                        "text": "executed",
+                        "color": "green",
+                        "index": 0
+                      },
+                      "confirmed": {
+                        "text": "confirmed",
+                        "color": "green",
+                        "index": 1
+                      },
+                      "accepted": {
+                        "text": "accepted",
+                        "color": "blue",
+                        "index": 2
+                      },
+                      "sent": {
+                        "text": "sent",
+                        "color": "text",
+                        "index": 3
+                      },
+                      "rejected": {
+                        "text": "rejected",
+                        "color": "red",
+                        "index": 4
+                      },
+                      "expired": {
+                        "text": "expired",
+                        "color": "orange",
+                        "index": 5
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      }
+    }
+  ]
+}

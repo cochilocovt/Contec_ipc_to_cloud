@@ -16,11 +16,11 @@ Client web app ── Backend API ── MQTT broker      (cloud)
 |---|---|
 | Hardware | BX-220D-DC781724 in hand, staying on its Windows 10 IoT Enterprise 2016 LTSB install |
 | Gateway code | Scaffold works against the simulated PLC: polling, telemetry, offline buffer, commands, heartbeat |
-| Real PLC | Not connected yet. Make, model, protocol and register map still to be recorded |
-| Cloud side | Not started |
+| Real PLC | Not connected yet. Final machine's PLC not known; a Keyence KV-8000 is available for testing |
+| Cloud side | Home-lab stack in `cloud/` (MQTT, TimescaleDB, ingest, Grafana) tested end to end. No TLS or auth yet |
 | Remote control | Coded but off by default. Needs the plant's sign-off first |
 
-Bench setup progress is tracked in [docs/bx220-setup-checklist.html](docs/bx220-setup-checklist.html). Open it in a browser; ticks are saved in that browser.
+To run the whole chain across this PC, a spare laptop and the BX-220, follow [docs/home-lab.md](docs/home-lab.md). Bench setup progress is tracked in [docs/bx220-setup-checklist.html](docs/bx220-setup-checklist.html). Open it in a browser; ticks are saved in that browser.
 
 ## Layout
 
@@ -29,10 +29,17 @@ gateway/                 Python edge gateway
   ipc_gateway/           config, PLC access, command rules, main loop
   config/                gateway.example.yaml (copy to gateway.yaml, which git ignores)
   tests/                 unit tests for command rules and value decoding
+cloud/                   home-lab cloud stack (docker compose)
+  mosquitto/             broker config (open, LAN only)
+  db/init/               TimescaleDB schema and read-only Grafana login
+  ingest/                MQTT -> database service
+  grafana/               datasource and "Machine overview" dashboard
 tools/
   sim_plc.py             simulated PLC (Modbus TCP) with the same register map
+  run-sim.bat            runs the simulator on a Windows laptop for the network
   send_command.py        sends one command over MQTT and prints the acks
 docs/
+  home-lab.md            three-machine setup: this PC, spare laptop, BX-220
   architecture.md        how read and write paths work, and the safety rules
   data-contract.md       MQTT topics, payloads, tag map format, database tables
   hardware.md            BX-220 notes, Windows support status, alternatives, Pi POC
@@ -40,9 +47,9 @@ docs/
   bx220-setup-checklist.html
 ```
 
-## Run it on the bench (Windows)
+## Run it on one Windows machine
 
-You need Python 3.10 or newer (64-bit) and an MQTT broker. For the bench, install Mosquitto for Windows from mosquitto.org and start it with `mosquitto -v`.
+Quickest way to try the gateway alone. You need Python 3.10 or newer (64-bit) and an MQTT broker: either `docker compose up -d` in `cloud/` (see home-lab.md) or Mosquitto for Windows from mosquitto.org started with `mosquitto -v`.
 
 ```powershell
 cd gateway

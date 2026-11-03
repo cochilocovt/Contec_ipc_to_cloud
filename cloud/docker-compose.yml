@@ -1,0 +1,76 @@
+# Home-lab cloud stack: MQTT broker, TimescaleDB, ingest service, Grafana.
+# Runs on any machine with Docker. See docs/home-lab.md.
+#
+#   cp .env.example .env      (then set the passwords)
+#   docker compose up -d --build
+#
+# Grafana:  http://localhost:3000   MQTT: port 1883   Postgres: localhost:5432 (this machine only)
+
+name: ipc-cloud
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0.20
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+
+  timescaledb:
+    image: timescale/timescaledb:2.17.2-pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: factory
+      POSTGRES_USER: factory
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:?set GRAFANA_DB_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U factory -d factory"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  ingest:
+    build: ./ingest
+    restart: unless-stopped
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      mosquitto:
+        condition: service_started
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "1883"
+      DATABASE_URL: postgresql://factory:${DB_PASSWORD}@timescaledb:5432/factory
+
+  grafana:
+    image: grafana/grafana-oss:11.3.0
+    restart: unless-stopped
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD in .env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_PLUGINS_PREINSTALL_DISABLED: "true"   # no plugin downloads at startup
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/machine.json
+      GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD}
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  mosquitto-data:
+  db-data:
+  grafana-data:

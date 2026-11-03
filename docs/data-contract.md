@@ -97,30 +97,13 @@ control:
 
 ## Database (TimescaleDB)
 
-```sql
-CREATE TABLE telemetry (
-  ts          timestamptz NOT NULL,
-  machine_id  text        NOT NULL,
-  metric      text        NOT NULL,
-  value       double precision,
-  value_text  text,             -- enums such as mode
-  seq         bigint
-);
-SELECT create_hypertable('telemetry', 'ts');
-CREATE INDEX ON telemetry (machine_id, metric, ts DESC);
+The schema lives in [`cloud/db/init/01-schema.sql`](../cloud/db/init/01-schema.sql); the ingest service in `cloud/ingest/` fills it.
 
-CREATE TABLE commands (
-  cmd_id      text PRIMARY KEY,
-  machine_id  text        NOT NULL,
-  command     text        NOT NULL,
-  params      jsonb,
-  issued_by   text        NOT NULL,
-  issued_at   timestamptz NOT NULL,
-  expires_at  timestamptz NOT NULL,
-  status      text        NOT NULL DEFAULT 'sent',  -- sent, accepted, executed, rejected, expired, confirmed
-  reason      text,
-  updated_at  timestamptz NOT NULL DEFAULT now()
-);
-```
+| Table | One row per | Filled from |
+|---|---|---|
+| `telemetry` (hypertable) | metric per reading: numbers and booleans (0/1) in `value`, enums in `value_text` | `telemetry` |
+| `gateway_status` | gateway, latest online/offline | `status` (including the Last Will) |
+| `commands` | command, with its latest status | `cmd`, then updated by `cmd/ack` |
+| `command_events` | ack, exactly as received | `cmd/ack` |
 
-The `commands` table doubles as the audit log. `confirmed` is set by the backend when telemetry shows the expected change.
+`commands` plus `command_events` are the audit log. `confirmed` is meant to be set by the backend when telemetry shows the expected change; nothing sets it yet. Grafana reads through a separate `grafana_reader` login that can only `SELECT`.

@@ -26,10 +26,19 @@ Owner's choice over reinstalling Linux. Consequences: no security patches since 
 
 pymodbus 3.11 for Modbus TCP, paho-mqtt 2.1 for MQTT, YAML config, run as a Windows service with NSSM. Chosen for a fast start; Node-RED remains an option. Remote control is coded but `control.enabled` defaults to false.
 
+### 2026-11-04 · Home lab: simulator first, KV-8000 later
+
+Develop against the simulated PLC on a spare laptop. The final machine uses a different PLC, so the KV-8000 gets one limited session: set its IP, read DM registers from the IPC, and add a protocol option to the gateway. Its value is a second protocol (Keyence Host Link), real network behaviour, and rehearsing the Local/Remote and heartbeat ladder logic.
+
+### 2026-11-04 · Home-lab cloud stack in Docker Compose
+
+Mosquitto 2.0, TimescaleDB 2.17 on PostgreSQL 16, a Python ingest service, Grafana 11.3 with a provisioned dashboard and a read-only database login. Runs on this PC. Open broker for the LAN only; TLS, certificates and ACLs come before anything is exposed.
+
 ## Open questions
 
 - PLC make, model and firmware; Modbus TCP or RTU over RS-232; the register map.
 - Does the existing HMI keep running? Over RS-232 only one program can own the COM port.
-- Cloud: self-hosted EMQX or Mosquitto on a VM, or AWS IoT Core / Azure IoT Hub.
+- Production cloud: the home-lab stack on a VM with TLS, or AWS IoT Core / Azure IoT Hub.
+- What sets `commands.status = confirmed`: the future backend, by comparing telemetry with the expected change.
 - ESU pricing from Contec, or a date to move to LTSC 2021 / Linux.
 - Which commands the plant actually wants, and what the PLC does on heartbeat loss.
