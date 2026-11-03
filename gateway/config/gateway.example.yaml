@@ -1,0 +1,55 @@
+# Gateway configuration. Copy to gateway.yaml (git-ignored) and edit.
+# This example matches tools/sim_plc.py, so it runs against the simulator as-is.
+
+site: plant-a
+machine_id: press-01
+
+plc:
+  protocol: modbus_tcp        # only modbus_tcp is implemented so far
+  host: 127.0.0.1             # real PLC: its IP on the machine-side LAN port
+  port: 5020                  # real PLC: usually 502
+  unit_id: 1
+  timeout_s: 2
+  poll_interval_s: 1.0
+
+mqtt:
+  host: 127.0.0.1
+  port: 1883                  # use 8883 with TLS in any real deployment
+  client_id: gw-press-01
+  username: null
+  password: null
+  tls:
+    enabled: false
+    ca_file: certs/ca.crt
+    cert_file: certs/gw-press-01.crt
+    key_file: certs/gw-press-01.key
+  keepalive_s: 30
+  offline_buffer: 10000       # telemetry messages kept in memory while the broker is unreachable
+
+# Values read from the PLC every poll.
+# type: coil | discrete | holding | input
+# format (registers only): uint16 (default) | int16 | uint32 | int32 | float32  (big-endian word order)
+# scale: multiplied into the raw value
+# enum: maps raw integers to labels
+read:
+  motor_running:   { type: coil,    address: 0 }
+  motor_speed_rpm: { type: holding, address: 100 }
+  motor_current_a: { type: holding, address: 101, scale: 0.1 }
+  spindle_temp_c:  { type: holding, address: 102, scale: 0.1 }
+  mode:            { type: holding, address: 103, enum: { 0: LOCAL, 1: REMOTE } }
+  part_count:      { type: holding, address: 104, format: uint32 }
+  fault_code:      { type: holding, address: 106 }
+
+# Write side. Off until the control design is agreed with the plant (see docs/architecture.md).
+control:
+  enabled: false
+  max_ttl_s: 30               # reject commands whose expires_at is further out than this
+  # Courtesy pre-check only. The PLC must enforce the same rule itself.
+  require: { tag: mode, equals: REMOTE }
+  heartbeat:
+    enabled: false
+    address: 110              # holding register the gateway increments; PLC watches it go stale
+    interval_s: 2
+  commands:                   # the allowlist: nothing outside this list can be written
+    motor_start: { type: coil, address: 10, pulse_ms: 500 }
+    motor_stop:  { type: coil, address: 11, pulse_ms: 500 }

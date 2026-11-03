@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Local config and secrets
+gateway/config/gateway.yaml
+certs/
+*.key
+*.pem
+*.crt
+.env
+
+# Runtime
+logs/
+*.log
+
+# Disk images from the CFast backup
+*.img
+
+# OS / editors
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
