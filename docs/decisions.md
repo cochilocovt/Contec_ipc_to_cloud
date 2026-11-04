@@ -34,6 +34,10 @@ Develop against the simulated PLC on a spare laptop. The final machine uses a di
 
 Mosquitto 2.0, TimescaleDB 2.17 on PostgreSQL 16, a Python ingest service, Grafana 11.3 with a provisioned dashboard and a read-only database login. Runs on this PC. Open broker for the LAN only; TLS, certificates and ACLs come before anything is exposed.
 
+### 2026-11-04 · Remote admin through Tailscale and Remote Desktop
+
+Tailscale on the IPC (key expiry disabled) with Remote Desktop over it, limited to the LAN and Tailscale addresses. No router port forwarding. Version 1607 has no built-in SSH server. Plant IT must approve Tailscale at the client site.
+
 ## Open questions
 
 - PLC make, model and firmware; Modbus TCP or RTU over RS-232; the register map.

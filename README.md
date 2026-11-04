@@ -39,6 +39,7 @@ tools/
   run-sim.bat            runs the simulator on a Windows laptop for the network
   send_command.py        sends one command over MQTT and prints the acks
 docs/
+  log/                   project log: timeline of every session, open items, topic notes
   home-lab.md            three-machine setup: this PC, spare laptop, BX-220
   architecture.md        how read and write paths work, and the safety rules
   data-contract.md       MQTT topics, payloads, tag map format, database tables
@@ -46,6 +47,8 @@ docs/
   decisions.md           decision log and open questions
   bx220-setup-checklist.html
 ```
+
+Where things stand and what's next: [docs/log/open-items.md](docs/log/open-items.md). The history of every discussion and decision: [docs/log/](docs/log/README.md).
 
 ## Run it on one Windows machine
 
