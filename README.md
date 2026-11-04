@@ -20,7 +20,7 @@ Client web app ── Backend API ── MQTT broker      (cloud)
 | Cloud side | Home-lab stack in `cloud/` (MQTT, TimescaleDB, ingest, Grafana) tested end to end. No TLS or auth yet |
 | Remote control | Coded but off by default. Needs the plant's sign-off first |
 
-To run the whole chain across this PC, a spare laptop and the BX-220, follow [docs/home-lab.md](docs/home-lab.md). Bench setup progress is tracked in [docs/bx220-setup-checklist.html](docs/bx220-setup-checklist.html). Open it in a browser; ticks are saved in that browser.
+To run the whole chain across this PC, a spare laptop and the BX-220, open [docs/home-lab-guide.html](docs/home-lab-guide.html) in a browser. It explains each machine's job and has the full checklist, with tick boxes that work offline and are saved in that browser. [docs/home-lab.md](docs/home-lab.md) has the same steps as plain text. The older [docs/bx220-setup-checklist.html](docs/bx220-setup-checklist.html) covers the IPC alone and also includes the plant-side steps.
 
 ## Layout
 
