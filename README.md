@@ -16,7 +16,7 @@ Client web app ── Backend API ── MQTT broker      (cloud)
 |---|---|
 | Hardware | BX-220D-DC781724 in hand, staying on its Windows 10 IoT Enterprise 2016 LTSB install |
 | Gateway code | Scaffold works against the simulated PLC: polling, telemetry, offline buffer, commands, heartbeat |
-| Real PLC | Not connected yet. Final machine's PLC not known; a Keyence KV-8000 is available for testing |
+| Real PLC | Not connected yet. The client machine is a pump test rig on a Keyence KV-X310 (design in [docs/pump-test-rig/](docs/pump-test-rig/README.md)); a Keyence KV-8000 is available for testing |
 | Cloud side | Home-lab stack in `cloud/` (MQTT, TimescaleDB, ingest, Grafana) tested end to end. No TLS or auth yet |
 | Remote control | Coded but off by default. Needs the plant's sign-off first |
 
@@ -40,6 +40,7 @@ tools/
   send_command.py        sends one command over MQTT and prints the acks
 docs/
   log/                   project log: timeline of every session, open items, topic notes
+  pump-test-rig/         the client machine: KV-X310, remote control, analytics (design only)
   home-lab.md            three-machine setup: this PC, spare laptop, BX-220
   architecture.md        how read and write paths work, and the safety rules
   data-contract.md       MQTT topics, payloads, tag map format, database tables

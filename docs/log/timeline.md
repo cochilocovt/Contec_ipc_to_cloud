@@ -58,3 +58,8 @@ Yes: clone to a larger industrial CFast (64 GB is enough), or use the second slo
 
 **Push the project to GitHub and keep a log of everything discussed.**
 Added this log and pushed the repo, with history, to `github.com/cochilocovt/Contec_ipc_to_cloud`.
+
+## 2026-11-05 (Thursday)
+
+**The client machine: a pump volumetric test rig on a Keyence KV-X310. Remote control of a servo (adjustment), the load cell (adjustment) and start/stop, plus analytics. Document it separately from the home lab.**
+Wrote `docs/pump-test-rig/`: overview, KV-X310 notes, remote control, data and analytics, and questions for the client. Main points: the KV-X310's built-in port has a confirmed OPC UA server but Modbus TCP is confirmed only on the KV-XLE02 add-on, so the gateway needs a new driver (OPC UA proposed, Host Link as fallback); the PLC should measure each stroke and buffer the results rather than relying on 1 s polls; setpoints need value-carrying commands with limits checked in three places; setpoints change only while idle; output measured by weight, with an early check that the load cell can resolve a single stroke. Home-lab files unchanged. → [topics/07](topics/07-pump-test-rig.md)

@@ -12,6 +12,7 @@ What was asked, discussed and decided while setting up this project, organised s
 | [topics/04-plant-connectivity.md](topics/04-plant-connectivity.md) | How an edge device reaches the cloud on a real shop floor, and what to ask plant IT |
 | [topics/05-cloud-hosting.md](topics/05-cloud-hosting.md) | The Docker home-lab stack versus Supabase and Vercel, including free-plan limits |
 | [topics/06-remote-access.md](topics/06-remote-access.md) | Tailscale and Remote Desktop to the IPC: every error so far and its fix |
+| [topics/07-pump-test-rig.md](topics/07-pump-test-rig.md) | The client machine: a pump test rig on a Keyence KV-X310, and what was checked about it |
 
 Formal decisions live in [../decisions.md](../decisions.md); the log explains how we got to them.
 

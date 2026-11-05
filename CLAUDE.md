@@ -40,7 +40,7 @@ Edge gateway project: a Contec BX-220 box PC reads a manufacturing machine's PLC
 
 ## Home lab
 
-This PC runs `cloud/`; a spare Windows laptop runs the simulated PLC (`tools/run-sim.bat`); the BX-220 runs the gateway. A Keyence KV-8000 is on hand for one session of real-PLC testing later (Host Link on port 8501; Modbus TCP support unconfirmed). The final machine uses a different PLC.
+This PC runs `cloud/`; a spare Windows laptop runs the simulated PLC (`tools/run-sim.bat`); the BX-220 runs the gateway. A Keyence KV-8000 is on hand for one session of real-PLC testing later (Host Link on port 8501; Modbus TCP support unconfirmed). The final machine uses a different PLC: a Keyence KV-X310 on a pump volumetric test rig, designed in `docs/pump-test-rig/` (kept separate from the home lab; don't change home-lab files for it).
 
 The home-lab broker is open (no TLS, no auth). Never expose it beyond the LAN.
 
@@ -50,4 +50,4 @@ After each working session, append an entry to `docs/log/timeline.md` (date, que
 
 ## Open questions
 
-PLC on the final machine: make, model and protocol (Ethernet or RS-232); register map; production cloud platform; whether the old HMI keeps running; ESU from Contec.
+Client rig (see `docs/pump-test-rig/client-questions.md`): servo and load cell details, what "load cell adjustment" means, target output and tolerance, KV-X310 protocol (OPC UA proposed) and ladder variables. Also: production cloud platform; ESU from Contec.

@@ -38,11 +38,23 @@ Mosquitto 2.0, TimescaleDB 2.17 on PostgreSQL 16, a Python ingest service, Grafa
 
 Tailscale on the IPC (key expiry disabled) with Remote Desktop over it, limited to the LAN and Tailscale addresses. No router port forwarding. Version 1607 has no built-in SSH server. Plant IT must approve Tailscale at the client site.
 
+### 2026-11-05 · The client machine: pump test rig on a Keyence KV-X310
+
+A small rig that measures the volumetric output of a soap-dispenser-style pump over many strokes and runs. The client wants live state, consistency analytics, and remote start/stop, servo adjustment and load cell adjustment. Designed in `docs/pump-test-rig/`, separate from the home lab, which stays as it is.
+
+### 2026-11-05 · Proposed: OPC UA to the KV-X310, Host Link as fallback
+
+The KV-X310's built-in Ethernet has a confirmed OPC UA server; Modbus TCP is confirmed only on the KV-XLE02 add-on unit. Needs a new gateway driver. Not built; confirm the server is enabled on the client's unit first.
+
+### 2026-11-05 · Proposed: per-stroke records and bounded setpoint commands
+
+The PLC measures each stroke and writes it to a results buffer that the gateway reads in full, instead of relying on 1 s polls. Setpoints become named commands carrying `params.value`, checked against limits in the backend, the gateway and the PLC, and applied only while the rig is idle. Still no generic register write. Not built; needs client sign-off.
+
 ## Open questions
 
-- PLC make, model and firmware; Modbus TCP or RTU over RS-232; the register map.
+- KV-X310 firmware, fitted units, OPC UA settings and the ladder program's variables (the client rig; see `pump-test-rig/client-questions.md`).
 - Does the existing HMI keep running? Over RS-232 only one program can own the COM port.
 - Production cloud: the home-lab stack on a VM with TLS, or AWS IoT Core / Azure IoT Hub.
 - What sets `commands.status = confirmed`: the future backend, by comparing telemetry with the expected change.
 - ESU pricing from Contec, or a date to move to LTSC 2021 / Linux.
-- Which commands the plant actually wants, and what the PLC does on heartbeat loss.
+- Servo and load cell details, and what "load cell adjustment" means. What the PLC does on heartbeat loss; whether remote Stop works in LOCAL.
