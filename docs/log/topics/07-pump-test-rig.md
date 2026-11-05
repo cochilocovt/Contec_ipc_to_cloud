@@ -20,3 +20,18 @@ The client machine is a small rig that measures the volumetric output of a liqui
 - Servo and run settings need commands that carry a value; today the cloud cannot send one. Proposed bounded setpoints, checked by backend, gateway and PLC, applied only while idle.
 - "Load cell adjustment" is ambiguous (tare, calibration, filter settings, or position). Asked the client.
 - Per-stroke weighing needs fine resolution: with a 1.0 mL ± 5% pump, roughly 0.01 g. A general-purpose load cell may not manage that, which could change the hardware.
+
+## Node-RED as an option (2026-11-05)
+
+Where it would sit: on the BX-220 instead of the Python gateway. Read flow (timer → PLC read → shape telemetry → MQTT out), stroke flow (read the results buffer from the last saved index → MQTT out), command flow (MQTT in → checks → PLC write → ack out). The cloud side does not change, because the topics and payloads stay the same.
+
+| For | Against |
+|---|---|
+| Protocol nodes exist: OPC UA, Modbus, and a Keyence Host Link node (new, few users; its page names a KV-X500 test) | Allowlist, expiry, dedupe and setpoint limits move from `commands.py` and its tests into function nodes, harder to test and review |
+| Quick to change while the client's answers come in; live debug view | Flows are one large JSON file; git diffs are hard to read |
+| Plant engineers often know it and can maintain it | Offline buffer and the saved results index must be built (file-backed context helps) |
+| | Node.js on Windows 10 1607 untested; Node-RED's Windows guide uses Task Scheduler, NSSM should also work |
+
+Not a fit for: the client-facing control UI (logins, roles, audit stay in the web app) or anything safety-related (stays in the PLC).
+
+Suggested: use Node-RED now as a bench tool to explore the KV-X310 (browse OPC UA variables, try Host Link) before writing the gateway driver. Keep the Python gateway for production unless the client's own staff will own the edge device, in which case Node-RED's maintainability may win.
