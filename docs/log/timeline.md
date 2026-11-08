@@ -66,3 +66,8 @@ Wrote `docs/pump-test-rig/`: overview, KV-X310 notes, remote control, data and a
 
 **Where would Node-RED fit if we went that route?**
 On the BX-220, in place of the Python gateway: PLC reads, telemetry and stroke records out, commands in. The cloud side is unchanged because the data contract is the same. Easier: ready-made OPC UA, Modbus and Keyence Host Link nodes, fast changes, and plant staff can edit flows. Harder: the write-path rules would move from tested Python into function nodes; flows diff poorly in git; the offline buffer and saved results index must be built by hand; Node.js on Windows 10 1607 is untested. Not a fit for the client control UI or as a safety layer. Suggested: use it now as a bench tool to explore the KV-X310, keep the Python gateway for production unless the client's own staff will maintain the edge. → [topics/07](topics/07-pump-test-rig.md)
+
+## 2026-11-09 (Monday)
+
+**Repo is on GitHub and cloned on another Windows PC; Remote Desktop to the IPC now works. What are the next three tasks?**
+1. Check the Unified Write Filter. 2. Back up the CFast card. 3. Finish Windows Update and remove the CredSSP workaround. Order changed from the earlier list: the write-filter check moves first because it decides whether updates survive a reboot, and the backup moves before the updates because a ten-year jump in updates on 1607 can fail. Updated `open-items.md` and topic 06.

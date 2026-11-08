@@ -67,7 +67,7 @@ Test-NetConnection 100.89.184.100 -Port 3389
 - IPC offline in Tailscale → go to its screen: let updates finish, log in, turn on Run unattended.
 - Online but `TcpTestSucceeded : False` → check System Properties → Remote, and `Get-NetFirewallRule -DisplayGroup "Remote Desktop" | Select DisplayName, Enabled, Profile`.
 
-**Status as of 2026-11-04 18:32 IST: unresolved.**
+**Status as of 2026-11-04 18:32 IST: unresolved. Resolved by 2026-11-09: Remote Desktop to the IPC works.**
 
 ## Updating Windows on the IPC
 
