@@ -2,6 +2,25 @@
 
 Edge gateway project: a Contec BX-220 box PC reads a manufacturing machine's PLC over Modbus and publishes to an MQTT broker; later it runs allowlisted start/stop commands from a cloud web app. Owner: Vaibhav.
 
+## How to work: lead and workers
+
+The main session (Opus 5.5) is the lead and owns the project: plans, design, safety, explanations to the owner, review, commits. Two Haiku 5.5 workers in `.claude/agents/` do deterministic tasks. The owner wants delegation used as described here.
+
+- Start every session by reading `docs/log/open-items.md`, then state a short numbered plan. Mark each step `lead`, `haiku-runner` or `haiku-scout`.
+- `haiku-runner` (edits files, runs commands): run tests and report; apply an edit you've written out exactly; formatting; regenerate a file from a template you give; `docker compose config`; git status/diff summaries; log entries from text you wrote.
+- `haiku-scout` (read-only): find files, functions, config keys and usages; fetch a named documentation page and extract specific facts with quotes.
+- Keep with the lead, never delegate: anything in the machine-control write path or its safety rules; data contract, schema or tag-map design; security; debugging when the cause is unclear; choosing between options; anything on the owner's computer through the device bridge; commits, pushes and anything irreversible; every explanation to the owner.
+- Write each brief with: goal, exact paths and commands, the exact text of any edit, what to return, done-when, and what not to touch. A worker sees none of this conversation.
+- Verify before relying on a result: re-run the check or read the changed lines yourself. If a worker reports `blocked`, guessed, or deviated, do that step yourself.
+- Don't delegate what you can do in one or two tool calls; starting a worker costs more than that. Run at most three workers at once, only on independent tasks.
+- Finish every session by updating the log (see "Keeping the log"), then commit and push yourself.
+
+## Working style
+
+- Explain in plain language, step by step, and assume the owner is new to industrial controls when explaining hardware, PLCs or networking.
+- State assumptions and uncertainty plainly; look up anything that changes over time (prices, versions, support dates) instead of relying on memory.
+- Never claim something works until you've tested it; say what was tested and what wasn't.
+
 ## Where things are
 
 - `gateway/ipc_gateway/` the gateway: `config.py` (YAML loading and validation), `plc.py` (Modbus reads and writes, value decoding), `commands.py` (allowlist, expiry, dedupe, mode check), `app.py` (main loop, MQTT).
@@ -10,6 +29,14 @@ Edge gateway project: a Contec BX-220 box PC reads a manufacturing machine's PLC
 - `cloud/` home-lab stack: `docker-compose.yml` (Mosquitto, TimescaleDB, ingest, Grafana), schema in `db/init/01-schema.sql`, ingest in `ingest/ingest.py`, dashboard in `grafana/dashboards/machine.json`.
 - `docs/log/` project log: `timeline.md` (every session), `open-items.md` (current state and next steps), `topics/` (one file per subject). Read `open-items.md` first to see where things stand.
 - `docs/` architecture, home-lab setup, data contract, hardware notes, decision log. Update `docs/decisions.md` when a decision changes.
+- `.claude/agents/` the two Haiku worker definitions; `.claude/settings.json` sets the main model and stops workers spawning their own workers.
+
+## Known pitfalls
+
+- pymodbus 3.11 uses `device_id=`, not `slave=`.
+- The IPC runs Windows 10 version 1607 (build 14393): no built-in OpenSSH server, old PowerShell 5.1, Unified Write Filter may discard changes at reboot.
+- Git in the owner's Windows folder through the device bridge leaves `.lock` and `tmp_obj_*` files under `.git` unless delete permission is granted first; clean them up after every git command there.
+- The home-lab broker has no auth; the gateway's `control.enabled` is `false` until the plant signs off.
 
 ## Commands
 

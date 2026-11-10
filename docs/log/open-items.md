@@ -1,6 +1,6 @@
 # Open items
 
-Last updated 2026-11-09.
+Last updated 2026-11-11.
 
 ## Where things stand
 
@@ -21,6 +21,10 @@ Last updated 2026-11-09.
 3. Finish Windows Update on the IPC until the newest hotfix is 2018 or later, then remove the `AllowEncryptionOracle` workaround on the home PC if it's still set, and check Remote Desktop still connects.
 4. Confirm Tailscale "Run unattended" is on, so the IPC stays reachable after reboots.
 5. Follow `docs/home-lab-guide.html` from "IPC: Windows housekeeping" onwards.
+
+## Working setup
+
+New sessions should run on Opus 5.5 (lead) with the Haiku workers in `.claude/agents/`. Not yet confirmed in a live session that the workers load and run on Haiku 5.5; check at the start of the next session.
 
 ## Waiting on decisions or information
 

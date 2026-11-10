@@ -50,6 +50,10 @@ The KV-X310's built-in Ethernet has a confirmed OPC UA server; Modbus TCP is con
 
 The PLC measures each stroke and writes it to a results buffer that the gateway reads in full, instead of relying on 1 s polls. Setpoints become named commands carrying `params.value`, checked against limits in the backend, the gateway and the PLC, and applied only while the rig is idle. Still no generic register write. Not built; needs client sign-off.
 
+### 2026-11-11 · Opus 5.5 leads, Haiku 5.5 workers do deterministic tasks
+
+The main session runs on Opus 5.5 and owns planning, design, safety, explanations, review and commits. Two Haiku 5.5 subagents in `.claude/agents/` take deterministic work: `haiku-runner` (tests, exact edits, formatting, config checks) and `haiku-scout` (read-only lookups). Workers can't spawn their own workers, can't commit, and never touch the write path unless given exact text. Rules are in `CLAUDE.md` under "How to work".
+
 ## Open questions
 
 - KV-X310 firmware, fitted units, OPC UA settings and the ladder program's variables (the client rig; see `pump-test-rig/client-questions.md`).

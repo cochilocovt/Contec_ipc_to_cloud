@@ -71,3 +71,13 @@ On the BX-220, in place of the Python gateway: PLC reads, telemetry and stroke r
 
 **Repo is on GitHub and cloned on another Windows PC; Remote Desktop to the IPC now works. What are the next three tasks?**
 1. Check the Unified Write Filter. 2. Back up the CFast card. 3. Finish Windows Update and remove the CredSSP workaround. Order changed from the earlier list: the write-filter check moves first because it decides whether updates survive a reboot, and the backup moves before the updates because a ten-year jump in updates on 1607 can fail. Updated `open-items.md` and topic 06.
+
+## 2026-11-10 (Tuesday)
+
+**All three home-lab machines run Tailscale. Tailscale or local addresses in the guide?**
+IPC_IP (used only for Remote Desktop): Tailscale address. LAPTOP_IP and PC_IP (gateway to PLC and broker): local addresses, because that matches the plant (the real PLC can't run Tailscale) and the guide's Private-profile firewall rules. Reserve the local addresses on the router. To send gateway traffic over Tailscale later, widen the PC's 1883 rule to `100.64.0.0/10`.
+
+## 2026-11-11 (Wednesday)
+
+**What instructions improve output in new sessions, with Opus 5.5 as orchestrator and Haiku 5.5 doing deterministic tasks?**
+Checked Claude Code's docs on subagents and CLAUDE.md. Added `.claude/agents/haiku-runner.md` and `haiku-scout.md` (model `claude-haiku-5-5`, restricted tools, no nested agents), `.claude/settings.json` (main model `claude-opus-5-5`, subagent nesting off), and to `CLAUDE.md`: "How to work: lead and workers", "Working style" and "Known pitfalls". Decision recorded in `decisions.md`.
