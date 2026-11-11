@@ -25,7 +25,7 @@ The owner chose to have access scripts prepared. Added `tools/enable-lab-remotin
 
 References checked 2026-11-11: [Microsoft remoting security](https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/winrm-security?view=powershell-5.1), [PowerShell 5.1 remote troubleshooting](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_remote_troubleshooting?view=powershell-5.1).
 
-### Remaining acceptance
+### Original acceptance plan at the access checkpoint
 
 1. Establish authenticated command access; inspect UWF, backup status, patch level, clock, Tailscale unattended state, actual repo/venv/NSSM paths and processes.
 2. Inspect/configure the IPC's real gateway config and verify both outgoing connections. Keep durable control/heartbeat settings disabled; any simulator-only command testing must use an explicitly verified isolated bench config and restore disabled control afterwards.
@@ -42,3 +42,62 @@ At `2026-11-11T02:27:30Z`, the third consecutive goal-turn audit still found bot
 ### 2026-11-11: both remote bootstraps report READY
 
 The owner clarified that the script contents were pasted into PowerShell rather than invoked as saved files, then reported READY on both devices. At `2026-11-11T04:04:34Z`, independent TCP probes succeeded on port 5985 at both device addresses. Neither desktop credential file was present, so authenticated session checks and remote configuration inspection remain pending. Explained that the desktop prompts use the IPC administrator account first (recorded as `STANDARD\This pc`) and the laptop administrator account second; `whoami` in the laptop's administrator PowerShell supplies its account name. Passwords are the target Windows account passwords, not the desktop's password or a Windows Hello PIN. Explained that cleanup can use the saved script or equivalent remote operations after verifying the policy snapshot; no cleanup was executed.
+
+### 2026-11-11: actual IPC service and three-device telemetry
+
+The desktop's IPC credential appeared and an administrator WinRM session succeeded. No password was printed. Read-only IPC checks established:
+
+- Computer `STANDARD`, Windows 10 Enterprise 2016 LTSB, build 14393. Reported hotfixes included KB3206632, KB4049411 and KB4033631. A CBS servicing reboot is pending. C: had 5,475,004,416 bytes free (about 5.1 GiB). No OS update or reboot was attempted; a verified CFast backup remains unrecorded.
+- UWF current/next session OFF and servicing OFF; no protected volumes configured. The utility emitted UTF-16 text through remoting, so its output contained embedded NULs, but the OFF states were readable.
+- Tailscale/WinRM services running automatically. Tailscale preferences: `ForceDaemon=true`, `WantRunning=true`, `LoggedOut=false`. LAN `192.168.1.3`. The lab WinRM firewall address filter is exactly local `100.89.184.100`, remote `100.73.242.65`; no standard WINRM rule was enabled. The saved policy snapshot exists and records no original `LocalAccountTokenFilterPolicy` value.
+- `C:\ipc_connection\gateway\.venv` runs Python 3.13.17 x64 with pymodbus 3.11.4, paho-mqtt 2.1.0 and PyYAML 6.0.3. SHA-256 hashes of all six gateway modules, requirements and the example config matched this checkout.
+- IPC TCP connections to laptop `100.100.157.108:5020` and home broker `192.168.1.20:1883` succeeded. The real config was absent, so it was created exclusively from the example with only those two hosts changed; both durable control and heartbeat writes remain disabled.
+
+A supervised 20-sample IPC run stored 140 metric rows and passed live freshness/online checks. Its final stderr warning caused PowerShell's native-command error handling to terminate the shell pipeline; a separate five-sample foreground run with file logging completed and asserted successfully. This was a launcher issue, not a gateway/PLC read failure.
+
+Installed `ipc-gateway` using NSSM build `2.24-101-g897c7ad` win64 from the [vendor download](https://nssm.cc/download), checked 2026-11-11. Binary is at `C:\ProgramData\IPC-HomeLab\nssm\nssm.exe`; SHA-256 `eee9c44c29c2be011f1f1e43bb8c3fca888cb81053022ec5a0060035de16d848`. Downloaded ZIP SHA-256 `99f5045fffbffb745d67fe3a065a953c4a3d9c253b868892d9b685b0ee7d07b8`; 415,458 ZIP bytes and 368,640 binary bytes. Ignored local provenance is in `logs/vendor/`.
+
+Service settings: automatic startup, LocalSystem, application `C:\ipc_connection\gateway\.venv\Scripts\python.exe`, working directory `C:\ipc_connection\gateway`, parameters `-m ipc_gateway --config config\gateway.yaml --log-file logs\gateway.log`. NSSM restarts exits after 5 seconds; SCM recovery also restarts wrapper failures. The gateway log rotates at 2 MB with five backups; redirected service stdout/stderr use NSSM online rotation at 2 MB. Killing only the verified gateway process tree under NSSM changed its root PID from 2752 to 1200 in 5.95 seconds; a follow-up confirmed service Running and fresh online telemetry. No Windows reboot was performed.
+
+The read-only configuration also rejected test Start command `03793dbb-6af0-4082-a9cd-494d8557cad3` with `control is disabled on this gateway`. Both MQTT acknowledgement and database audit row were checked; the simulator remained stopped. Non-secret command evidence is under `logs/agent-runs/20261111-ipc-control-disabled/`.
+
+### Broker replay defect found and fixed
+
+The first 20-second broker outage lost 30 samples: broker logs showed the gateway reconnecting about a second before ingest's clean-session connection, so replay occurred before any ingest subscription existed. The missing sequence range remains historical test data; it was not fabricated or backfilled. Evidence: `logs/agent-runs/20261111-ipc-broker-buffer/result.json`.
+
+Changed only ingest's MQTT constructor to `clean_session=False`, retaining its existing fixed `ingest` client ID and broker persistence volume. Rebuilt/recreated ingest without changing credentials or volumes; broker logs confirmed `c0`. [Paho documentation](https://eclipse.dev/paho/files/paho.mqtt.python/html/client.html) confirms that this retains subscriptions and queued messages across disconnects. No PLC command rule, tag, schema or payload changed.
+
+- Repeated 20-second outage: 32 samples, all seven metrics, zero missing sequences, maximum timestamp interval 1.062 s. Evidence: `logs/agent-runs/20261111-ipc-broker-buffer-retest/result.json`.
+- Full-minute outage: broker stopped at `2026-11-11T04:19:41.430Z`, started at `04:20:41.871Z`. Across the entire baseline/reconnect window, 93 samples arrived with all seven metrics, zero missing sequences and maximum interval 1.081 s. Evidence: `logs/agent-runs/20261111-ipc-broker-buffer-minute/result.json`.
+- Authenticated Grafana checks at `2026-11-11T04:22:51Z`: datasource `OK`, Machine overview dashboard with nine panels, `press-01` online, all seven latest metrics returned through the Grafana datasource, maximum age 1.596 s. Evidence: `logs/agent-runs/20261111-ipc-grafana/result.json`. Open `http://localhost:3000/d/ipc-machine?var-machine=press-01` on this desktop.
+
+### Still waiting on the laptop login and remaining acceptance
+
+The owner only knows the laptop PIN. Supplied a separate temporary local administrator account approach, preserving the owner's normal account/password. After `-AsSecureString` was treated as a standalone command, clarified that the complete `Read-Host` command must run first, password entry must finish, and only then should the account commands be pasted. No password is recorded. Laptop authentication, simulator service/startup, isolated bench command tests, full-device reboot checks and temporary-account/access cleanup remain unfinished. The durable gateway stays read-only and is already running on the IPC.
+
+### 2026-11-11: laptop service and LAN data path
+
+The laptop credential subsequently appeared, and an administrator session using the temporary `ipc-lab-setup` account succeeded. Computer `DESKTOP-RJOJQ4V`, Windows 11 Home Single Language 10.0.26200, LAN `192.168.1.10`. Repository `C:\ipc_connection`; simulator and requirements hashes matched this checkout. Its virtual environment runs Python 3.15.2 x64 with the same pinned pymodbus/paho/PyYAML versions. The original manual `run-sim.bat` instance had one venv root process and one base-Python child, listening on all interfaces.
+
+Tailscale private-preference lookup through that temporary account returned `401 Unauthorized: Tailscale already in use` by the normal laptop user. Reported it and did not switch identities or bypass that restriction. The owner reports enabling Run unattended from the normal login; one verification attempt after that external change still returned 401. Windows service startup is automatic, but actual post-reboot Tailscale reachability is not yet proved.
+
+Confirmed that IPC reads work through laptop LAN `192.168.1.10:5020`. Set that trusted home Wi-Fi network to Private and added project rule `IPC-HomeLab-SimPLC` for TCP 5020, local `.10`, remote IPC `.3`, Wi-Fi/Private. Existing application firewall allowances were not removed. Installed automatic LocalSystem NSSM `ipc-simulator` with the same verified binary, working directory `C:\ipc_connection`, parameters `C:\ipc_connection\tools\sim_plc.py --host 192.168.1.10 --port 5020 --mode remote --heartbeat-timeout 6`, 5 s restart delay, SCM wrapper recovery and rotating stdout/stderr under root `logs/`.
+
+Stopped only the verified manual simulator process tree after configuring its replacement. The service started and listens specifically on the LAN address, no longer on the Tailscale address. Changed the IPC's real PLC host to `192.168.1.10`, preserving its MQTT host and disabled control/heartbeat. The prior config is in ignored IPC `gateway\logs\gateway-before-lan-20261111T043034Z.yaml`. Restarted the gateway service and verified fresh telemetry. Killing only the verified simulator process tree under NSSM changed its root PID 11180 → 3988; service Running and new listener were observed after 7.11 s. No Windows reboot occurred. Laptop AC sleep and AC hibernate were already Never, and AC power was connected; battery settings were not changed.
+
+### 2026-11-11: isolated three-device command acceptance
+
+Lead-owned live controller and full evidence are under ignored `logs/agent-runs/20261111-bench-control/` (`check.py`, `result.json`, `mqtt-events.json`, server/management output). The temporary IPC gateway loaded the durable read-only config, asserted its simulator LAN target and allowlist, then enabled control/heartbeat **in memory only** under `home-lab/control-check` with a distinct MQTT client ID and a 240 s watchdog. It did not change the durable config, tag map, allowlist or PLC authority. Commands originated from this desktop and traversed its broker to the IPC and laptop simulator.
+
+- Start and Stop each returned accepted → executed; subsequent telemetry confirmed running → stopped.
+- Reusing the first Start's ID was rejected as a duplicate. That ID had exactly one executed acknowledgement, and fresh telemetry remained stopped after the duplicate. The commands table's latest status for that ID is rejected, while its event history retains the original execution and later duplicate rejection.
+- Already-expired, unknown `write_anything`, more-than-30-second TTL and missing-UTC-offset commands were refused with the expected reasons. The invalid-offset request is intentionally absent from the commands table; its rejection event was recorded.
+- Restarted only the simulator service in LOCAL mode: telemetry showed LOCAL and Start was rejected as `machine in LOCAL mode`. Restored REMOTE mode afterwards.
+- Started once more, stopped the temporary gateway, and observed the simulator stop with fault 9 through the permanent gateway's telemetry. Observation took 7.531 s from initiating remote stop, including remote-call and one-second telemetry delay; this is not a direct six-second physical stop-time measurement. Simulator timeout is configured as 6 s. This tests heartbeat loss, not physical cable removal.
+- The temporary gateway exited 0. Restarted the simulator in REMOTE mode and independently observed motor stopped, speed/current/count 0, temperature 25 °C and fault 0. Verified both permanent services Running and the real IPC config still has `control.enabled=false` and heartbeat disabled.
+
+Current remaining acceptance is in `open-items.md`: CFast backup/servicing prerequisites, full-device reboot/sign-in, physical cable/power-loss checks and finished-card image, followed by temporary access/account cleanup. The owner has been asked for the CFast backup status. Software services and command-path tests are complete; the whole project is not yet declared complete.
+
+The owner subsequently confirmed that a verified CFast backup exists. This is owner-reported evidence; the image itself was not inspected. Preparing a normal IPC restart to finish pending servicing and test automatic recovery, with build/space review before further updates.
+
+During source review, origin had two additive owner helper commits (`6843ad4`, `249ae1a`) creating `sentence1` and `sentence2`. Preserved all eight lead-owned changed files in ignored backups and a named stash, fast-forwarded the clean branch, restored and verified the owned files byte-for-byte, then dropped only the verified task stash. The two owner files were preserved without edits. Reconciliation evidence is under `logs/agent-runs/20261111-git-reconcile/`.

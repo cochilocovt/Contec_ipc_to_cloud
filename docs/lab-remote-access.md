@@ -43,6 +43,45 @@ When both print `CONNECTED`, tell Codex **access is ready**. The lead can then i
 
 If you already pasted the remote script into PowerShell and it printed `READY`, continue with the desktop connection prompts rather than repeating setup. A popup alone does not prove the preceding steps succeeded; the lead still verifies the connections. `-Disable` is a parameter passed when launching the saved script, not a standalone PowerShell command. You can save the original remote script as a `.ps1` file later and use its cleanup command even if setup was originally pasted. Leave access enabled until commissioning is finished; the lead can verify the saved policy snapshot and perform equivalent cleanup remotely.
 
+## If you only know the laptop PIN
+
+The PIN cannot authenticate WinRM. Keep your normal account unchanged and create a separate temporary setup account. On the **laptop**, open **Windows PowerShell as administrator**. If Windows requires an administrator password you do not know, stop and tell the lead.
+
+Run **only this complete line first**. `-AsSecureString` is part of `Read-Host`, not a separate command:
+
+```powershell
+$labPassword = Read-Host -AsSecureString -Prompt 'Choose a temporary setup password'
+```
+
+Enter a new temporary password and press Enter; no characters appear while typing. **After password entry finishes**, paste this block:
+
+```powershell
+& {
+    $ErrorActionPreference = 'Stop'
+    if (-not (Get-NetIPAddress -AddressFamily IPv4 | Where-Object IPAddress -eq '100.100.157.108')) {
+        throw 'Run this on the laptop, with Tailscale connected.'
+    }
+    $name = 'ipc-lab-setup'
+    $account = Get-LocalUser -Name $name -ErrorAction SilentlyContinue
+    if ($account -and $account.Description -ne 'Temporary home-lab setup') {
+        throw 'An existing account has this name. Tell the lead before continuing.'
+    }
+    if ($account) {
+        Set-LocalUser -Name $name -Password $labPassword
+    } else {
+        New-LocalUser -Name $name -Password $labPassword -Description 'Temporary home-lab setup' | Out-Null
+    }
+    $account = Get-LocalUser -Name $name
+    $admins = Get-LocalGroup -SID 'S-1-5-32-544'
+    if (-not (Get-LocalGroupMember -Group $admins | Where-Object SID -eq $account.SID)) {
+        Add-LocalGroupMember -Group $admins -Member $account
+    }
+    Write-Host "Username: $env:COMPUTERNAME\$name"
+}
+```
+
+Use the printed username and the password you just chose in the desktop's **laptop** credential popup. If that popup already closed, rerun `connect-lab-devices.ps1` on the desktop; it asks for IPC credentials first and laptop credentials second again. Passwords stay in local prompts, never chat. The lead removes this temporary account after commissioning; no change to your normal laptop PIN/password is required.
+
 ## Cleanup after commissioning
 
 On each remote device, run its first command again with `-Disable` appended. This closes the lab firewall rule and restores the original local-account token policy. WinRM and its session endpoints remain installed, but the standard WinRM firewall rules stay disabled. It does not restore an unrelated management setup; first-use checks refuse existing enabled WinRM rules for that reason.

@@ -66,6 +66,10 @@ The owner cannot create router reservations and reports the three device address
 
 Keep Sol/Luna and Opus 5.5/Haiku 5.5 models, effort settings, responsibility boundaries and tool restrictions. Both teams follow [agent-workflow.md](agent-workflow.md): evidence with measured metadata, early capability checks, bounded output, shared Windows helpers, lead-authored executable acceptance, read-only lab health checks and a lead-owned delegation scorecard. Do not infer efficiency from a single session or fill missing timing/token data. Native Haiku Scout keeps Bash disabled; the lead supplies unavailable measurements. Helpers do not bypass policy or create a security boundary. Details and validation are in [topics/09](log/topics/09-agent-workflow-upgrades.md).
 
+### 2026-11-11 · Persistent ingest subscription for broker recovery
+
+A real laptop → IPC → desktop broker-restart test lost 30 samples because the gateway reconnected and replayed before ingest resubscribed. Keep the existing fixed `ingest` client ID and set MQTT 3.1.1 `clean_session=False`, using the broker's existing persistent data volume. This retains the subscriber queue across disconnects without changing topics, payloads, schema or PLC control. Repeated 20-second and full-minute outages recovered 32 and 93 samples respectively with no sequence gaps; details are in [topic 10](log/topics/10-three-device-commissioning.md). This is bounded buffering, not durable storage on the gateway.
+
 ## Open questions
 
 - KV-X310 firmware, fitted units, OPC UA settings and the ladder program's variables (the client rig; see `pump-test-rig/client-questions.md`).

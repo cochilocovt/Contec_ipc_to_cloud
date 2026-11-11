@@ -28,7 +28,7 @@ On each machine run `ipconfig` and note the IPv4 address. In the steps below:
 
 DHCP reservations are useful but are not a prerequisite for this lab. If the router does not allow them, use the current addresses and leave Windows on automatic DHCP. Do not pick a manual static address from an unknown DHCP pool: it could collide with another device. Recheck the addresses if a connection stops working.
 
-On 2026-11-11 this PC's connected Wi-Fi address was `192.168.1.20`; the IPC responded directly at `192.168.1.3` (Tailscale `100.89.184.100`). The Tailscale peer `mom-laptop` was offline; the spare laptop's LAN address was not confirmed. See [the local setup record](log/topics/08-home-pc-setup.md).
+On 2026-11-11 this PC's connected Wi-Fi address was `192.168.1.20`, the IPC's LAN address `192.168.1.3` (Tailscale `100.89.184.100`), and the laptop's LAN address `192.168.1.10` (Tailscale `100.100.157.108`). The commissioned data path uses those LAN addresses: laptop `:5020` → IPC → desktop `:1883`. Both remote programs now run as automatic NSSM services. See [the commissioning record](log/topics/10-three-device-commissioning.md) for tests and the remaining physical/reboot checks.
 
 ## 1. This PC: start the cloud stack
 

@@ -67,7 +67,8 @@ class Ingest:
         self.q: queue.Queue[tuple[str, bytes]] = queue.Queue(maxsize=50_000)
         self.stop = threading.Event()
         self.conn: psycopg.Connection | None = None
-        self.mqtt = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="ingest")
+        # Keep the subscription while offline so gateway replay cannot beat our reconnect.
+        self.mqtt = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="ingest", clean_session=False)
         self.mqtt.on_connect = self._on_connect
         self.mqtt.on_message = self._on_message
         self.mqtt.reconnect_delay_set(1, 30)

@@ -33,6 +33,8 @@ Each poll cycle (default 1 s) the gateway:
 
 If the broker is unreachable, telemetry is held in a bounded in-memory queue and replayed on reconnect. `seq` lets the cloud spot gaps. A Last Will message marks the gateway `offline` if it dies without a clean shutdown.
 
+Ingest uses a persistent MQTT 3.1.1 session with its fixed client ID. The broker retains its subscription while ingest reconnects, so a gateway that reconnects first can replay into the subscriber's queue. Keep the Mosquitto data volume: a clean session loses that subscription and can discard replayed readings before ingest resubscribes. The gateway's own buffer remains in memory and does not survive gateway process or power loss.
+
 ## The write path
 
 Once a remote click can move physical equipment, these rules apply.
