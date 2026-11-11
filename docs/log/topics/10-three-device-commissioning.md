@@ -113,3 +113,29 @@ The owner explicitly confirmed all work saved and authorized forced IPC then lap
 Evidence lives in `logs/agent-runs/20261111-ipc-reboot/`: original/normalized baseline, refused normal request, live forced-request record and launcher. The laptop has its separate pre-restart baseline in `logs/agent-runs/20261111-laptop-reboot/before.json`; it has not been restarted yet. A timeout observing the monitor is not proof that Windows servicing stopped.
 
 Desktop read-only checks: Docker AutoStart remains true. The CredSSP workaround is still `AllowEncryptionOracle=2`; the Codex desktop process is not elevated, so its eventual HKLM removal requires a reviewed administrator action after IPC patching. No registry change or permission bypass was attempted.
+
+### 2026-11-11: both device reboot recoveries verified
+
+The IPC's original monitor ended on a stale post-reboot remote shell (`CannotConnectTargetSessionDoesNotExist`), not a new restart refusal. Opened a fresh authenticated session without sending another restart. At `05:43:18Z`, boot time was `05:35:19Z`, registry build `14393.2906`, CBS pending false, about 8.4 GiB free, no interactive user, and gateway/Tailscale/WinRM all Running/Automatic. Gateway log showed startup at `05:35:41Z` and MQTT connected. Machine freshness checks passed. The owner asked whether a PIN was needed; confirmed that they should leave the IPC at its sign-in screen. Evidence: `logs/agent-runs/20261111-ipc-reboot/recovery-result.json` (first object in its output array).
+
+Issued the previously approved laptop forced restart at `05:48:18Z`. Used fresh disposable sessions for observation and never repeated the restart on a transport timeout. It booted at `05:49:05Z`; at `05:51:42Z`, no interactive user was present, simulator/Tailscale/WinRM were Running/Automatic and the simulator listened at `192.168.1.10:5020`. The LAN/Tailscale addresses were unchanged. Evidence: `logs/agent-runs/20261111-laptop-reboot/result.json`. Three-device freshness passed afterwards. This proves unattended Tailscale behavior despite its private-preference query being denied to the temporary account.
+
+### Remaining Windows servicing and storage preparation
+
+Checked Microsoft's [October 2026 update](https://support.microsoft.com/en-us/servicing/os/windows-10/2026/10/kb5126868-windows-10-1607-security-update): it requires the July 8, 2025 baseline (KB5062560 or newer) and servicing stack KB5126649. The [SSU article](https://support.microsoft.com/en-us/servicing/os/windows/ssu/2026/10/kb5126649-windows-10-1607-ssu) states no prerequisites; the [July baseline](https://support.microsoft.com/en-us/servicing/os/windows-10/2025/07/july-8-2025-kb5062560-os-build-14393-8246) names SSU KB5062799. Sources checked 2026-11-11; selected the x64 Windows 10/Windows 10 LTSB Catalog rows, not Server-only or x86 rows.
+
+Luna Scout's three published row titles/product labels/size labels were independently verified from Catalog HTML; its exposed web text did not contain download GUIDs, so the lead obtained those separately. Downloaded via Microsoft's HTTPS delivery links, checked exact published byte counts and filename SHA-1 digests, and recorded SHA-256 hashes. Ignored provenance/files: `logs/vendor/windows-updates/`.
+
+| Package | Bytes | SHA-256 |
+|---|---:|---|
+| KB5126649 | 13,171,399 | `15d85b4ab6a39f4e39fa80bd2f7fb33263cea63b0243bf1532e81ddaaed9158b` |
+| KB5062560 | 1,756,681,042 | `5f75072a07e36090671c945684c23c72a8f53345507048ae3ccc934e443103ab` |
+| KB5126868 | 1,942,129,679 | `12b0181e9b8efb5d37cb2a7c91752b26a76c0499d7bda890dfdfdf70db542078` |
+
+Transferred only the small SSU so far, into `C:\ProgramData\IPC-HomeLab\updates` protected for Administrators/SYSTEM; verified its SHA-256 on the IPC. Launched Windows' standalone installer as an on-demand SYSTEM task (`IPC-HomeLab-Update-KB5126649`, no future trigger), with `/quiet /norestart`. It finished with 2359302 (already installed); Win32_QuickFixEngineering independently lists KB5126649, installed 2026-11-11. No reinstall/reboot was triggered. Other two cumulative packages are downloaded on the desktop and have not been installed yet.
+
+The IPC has only C: (31,194,083,328 bytes). Read-only DISM component-store analysis completed successfully: actual store 13.42 GB, shared 5.69 GB, backups/disabled features 4.86 GB, cache/temp 2.85 GB, last cleanup 2016-07-16, one reclaimable package, cleanup recommended. DISM reported image version `14393.2457`; the registry reports `14393.2906`, so keep these observations distinct rather than treating them as interchangeable version evidence.
+
+Started the supported `/Online /Cleanup-Image /StartComponentCleanup /NoRestart` command, **without ResetBase**, as on-demand SYSTEM task `IPC-HomeLab-ComponentCleanup` at `06:14:11Z`. At `06:17:26Z`, task state Running, result 267009 (running), DISM PID 4648 and TiWorker PID 4856 (about 194 CPU seconds) were live. Starting free space was 9,162,711,040 bytes. Log is `C:\ProgramData\IPC-HomeLab\updates\component-cleanup.log`; local start evidence in `logs/agent-runs/20261111-ipc-component-cleanup/`. Observe this existing task to terminal state, then recheck space before the large cumulative install; do not duplicate it merely because a client observation times out.
+
+No reset-base cleanup, feature/edition upgrade, further restart, CredSSP registry removal or temporary-access cleanup has been performed. Asked the owner where/how their original CFast image was created, to prepare the final updated image after servicing; they were told to leave the card in the IPC during servicing.
