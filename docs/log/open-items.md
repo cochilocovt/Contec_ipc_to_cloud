@@ -6,7 +6,7 @@ Last updated 2026-11-11.
 
 | Area | State |
 |---|---|
-| IPC (BX-220) | `STANDARD`, LAN `192.168.1.3`, Tailscale `100.89.184.100`. UWF current/next session OFF; Tailscale unattended preference true. Windows 1607, pending CBS servicing reboot and about 5.1 GiB free; OS updates/reboot deferred pending backup/space review |
+| IPC (BX-220) | `STANDARD`, LAN `192.168.1.3`, Tailscale `100.89.184.100`. UWF OFF. Pre-restart build `14393.576`, about 8.5 GiB free. Owner-approved forced restart requested `2026-11-11T05:12:00Z`; event 1074 confirms initiation, but servicing is delaying shutdown. Live monitor session `40380`, local PID `56844`; do not issue another restart based on an observation timeout |
 | Remote access | Administrator WinRM sessions verified on both devices. Laptop uses a temporary `ipc-lab-setup` account; the owner's normal PIN account was not changed. Temporary access/account cleanup remains pending final acceptance. See [topic 10](topics/10-three-device-commissioning.md) |
 | Gateway code | Running on the IPC as automatic `ipc-gateway` NSSM service. Python 3.13.17 and pinned dependencies verified; gateway source hashes match this checkout. Durable control/heartbeat writes disabled. Automatic process recovery and fresh telemetry passed |
 | Client rig | Requirements and design written in [../pump-test-rig/](../pump-test-rig/README.md); nothing built. Needs answers to the client questions first |
@@ -16,7 +16,7 @@ Last updated 2026-11-11.
 
 ## Next steps, in order
 
-1. **Perform the planned normal IPC restart and inspect pending servicing.** The owner confirms a verified CFast backup. Only about 5.1 GiB is free and a CBS reboot is pending; no OS update/reboot has yet been attempted in this session. Review build/space after restart before further updates, remove the home-PC CredSSP workaround when the patch level permits, and test RDP again.
+1. **Follow the existing IPC restart monitor, then inspect pending servicing.** The owner confirms a verified CFast backup and explicitly approved forced IPC then laptop restarts after saving work. Normal restart was refused because another user was logged on; the approved forced request is now waiting on TrustedInstaller/TiWorker servicing. Preserve the live operation across interruptions; do not restart it merely because polling times out. Review the new boot time/build/space after recovery, then assess further updates and remove the home-PC CredSSP workaround when patched (local administrator required).
 2. Complete full IPC/laptop reboot recovery after prerequisites, and this PC after reboot/sign-in (Docker start and all four services). Process recovery and a full-minute broker restart/replay passed; full-device reboot/sign-in is untested. The owner reports laptop Tailscale Run unattended enabled; its private-preference CLI remains denied to the temporary account, so confirm actual post-reboot reachability.
 3. Complete the guide's physical cable-loss and power-loss checks and finished-card image. The software heartbeat-loss test passed; it is not evidence of physical cable removal, BIOS power-loss recovery or a verified golden CFast image.
 4. Remove temporary WinRM access, restore the saved local-account token policy and desktop TrustedHosts changes, delete saved DPAPI credentials, and remove the temporary laptop account. Update the final commissioning record. The complete setup is not yet claimed.

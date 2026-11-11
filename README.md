@@ -15,10 +15,12 @@ Client web app ── Backend API ── MQTT broker      (cloud)
 | Area | State |
 |---|---|
 | Hardware | BX-220D-DC781724 in hand, staying on its Windows 10 IoT Enterprise 2016 LTSB install |
-| Gateway code | Scaffold works against the simulated PLC: polling, telemetry, offline buffer, commands, heartbeat |
+| Gateway code | Running on the BX-220 as an automatic Windows service; simulator telemetry, command guards, heartbeat and broker replay tested across all three devices |
 | Real PLC | Not connected yet. The client machine is a pump test rig on a Keyence KV-X310 (design in [docs/pump-test-rig/](docs/pump-test-rig/README.md)); a Keyence KV-8000 is available for testing |
 | Cloud side | Home-lab stack in `cloud/` (MQTT, TimescaleDB, ingest, Grafana) tested end to end. No TLS or auth yet |
 | Remote control | Coded but off by default. Needs the plant's sign-off first |
+
+Current home-lab commissioning evidence and remaining reboot/physical acceptance are in [docs/log/topics/10-three-device-commissioning.md](docs/log/topics/10-three-device-commissioning.md). Grafana opens with the live `press-01` machine selected; labelled bench history remains available in its machine dropdown.
 
 To run the whole chain across this PC, a spare laptop and the BX-220, open [docs/home-lab-guide.html](docs/home-lab-guide.html) in a browser. It explains each machine's job and has the full checklist, with tick boxes that work offline and are saved in that browser. [docs/home-lab.md](docs/home-lab.md) has the same steps as plain text. The older [docs/bx220-setup-checklist.html](docs/bx220-setup-checklist.html) covers the IPC alone and also includes the plant-side steps.
 

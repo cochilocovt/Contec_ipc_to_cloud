@@ -26,7 +26,11 @@
         "query": "SELECT machine_id FROM gateway_status ORDER BY machine_id",
         "definition": "SELECT machine_id FROM gateway_status ORDER BY machine_id",
         "refresh": 2,
-        "current": {},
+        "current": {
+          "selected": true,
+          "text": "press-01",
+          "value": "press-01"
+        },
         "includeAll": false,
         "multi": false
       }
