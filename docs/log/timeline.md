@@ -126,3 +126,6 @@ The baseline download completed at `06:44:31Z`; lead re-hashing on the IPC match
 
 **Close actual housekeeping gaps while servicing continues.**
 Guide audit found SMBv1 enabled and time sync stopped. Disabled server SMBv1, made all firewall inbound defaults explicitly Block, and enabled/started automatic Windows Time; NTP resync and continued telemetry passed. Full SMBv1 feature/client removal and final clock accuracy remain queued. Verified the existing Contec utility/drivers and its installed BX-220D/LTSB 2016 documentation; no utility reinstall or watchdog change. Independently accepted Luna Scout's bounded vendor-document facts, with missing timing/tokens and invocation uncertainty retained. The same native cleanup remains active and progressing. → [topics/10](topics/10-three-device-commissioning.md)
+
+**Correct and measure the IPC clock while awaiting native cleanup.**
+Successful NTP responses still left about 1.3 s offset. Changed local special polling to adaptive client mode and adjusted the local polling/correction intervals using documented Windows controls. Independent samples then measured under 0.005 s against Microsoft's time server; cloud freshness passed. Cleanup remains active with increasing CPU time/free space; no duplicate job, cumulative install or restart was sent. → [topics/10](topics/10-three-device-commissioning.md)
