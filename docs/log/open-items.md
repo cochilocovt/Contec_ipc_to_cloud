@@ -12,13 +12,13 @@ Last updated 2026-11-11.
 | Client rig | Requirements and design written in [../pump-test-rig/](../pump-test-rig/README.md); nothing built. Needs answers to the client questions first |
 | Cloud stack | Running: MQTT `192.168.1.20:1883`, Grafana `localhost:3000`, project DB `localhost:5433`. Actual laptop → IPC → DB → authenticated Grafana query passed. Ingest now keeps a persistent MQTT session; a full-minute broker outage replayed all samples without sequence gaps. See [topic 10](topics/10-three-device-commissioning.md) |
 | Simulated PLC on laptop | Rebooted at `2026-11-11T05:49:05Z`; simulator/Tailscale/WinRM and LAN listener recovered before sign-in, with the same `.10` address. Automatic NSSM `ipc-simulator`, REMOTE mode, 6 s timeout. Bench command/guard/heartbeat tests passed; restored stopped/fault 0. Permanent gateway remains read-only |
-| Backup of the CFast card | Owner confirms a verified CFast backup exists. Its artifact was not independently inspected in this session; a finished-system golden image is still pending |
+| Backup of the CFast card | Owner earlier reported a verified original backup; its artifact was not inspected. Owner has now explicitly excluded the final updated-card backup from this setup. No new image will be created |
 
 ## Next steps, in order
 
 1. **Monitor the running IPC component cleanup, then finish applicable Windows updates.** Both remote reboot tests passed before sign-in. The original IPC monitor `40380` ended on an obsolete remote shell; a fresh session proved the reboot. Do not rerun that restart. Official SSU KB5126649 is already installed; July 2025 baseline KB5062560 is the documented prerequisite for October 2026 security update KB5126868. Verified x64 LTSB installers are staged on this desktop under ignored `logs/vendor/windows-updates/`. Await cleanup completion and recheck free space before installation; remove the home-PC CredSSP workaround through a reviewed administrator action.
 2. Test this PC after reboot/sign-in (Docker start and all four services). IPC and laptop full reboot recovery are verified, including Tailscale and data services before sign-in; this desktop's full reboot/sign-in is still untested.
-3. Complete the guide's physical cable-loss and power-loss checks and finished-card image. The software heartbeat-loss test passed; it is not evidence of physical cable removal, BIOS power-loss recovery or a verified golden CFast image.
+3. Complete the guide's physical cable-loss and power-loss checks. The software heartbeat-loss test passed; it is not evidence of physical cable removal or BIOS power-loss recovery. The owner has explicitly excluded the finished-card image from the remaining scope.
 4. Remove temporary WinRM access, restore the saved local-account token policy and desktop TrustedHosts changes, delete saved DPAPI credentials, and remove the temporary laptop account. Update the final commissioning record. The complete setup is not yet claimed.
 
 ## Working setup
