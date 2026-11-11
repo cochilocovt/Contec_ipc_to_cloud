@@ -32,3 +32,7 @@ References checked 2026-11-11: [Microsoft remoting security](https://learn.micro
 3. Prove the actual laptop → IPC → desktop path with fresh telemetry, correct tag values/timestamps, retained status, and authenticated Grafana queries.
 4. Configure and test gateway NSSM and laptop simulator startup/recovery; test broker reconnect/buffering; perform planned device reboot checks when practical. Do not pull power or run Windows updates before UWF/backup prerequisites are understood.
 5. Remove temporary access/credentials and update the logs with actual outcomes. Full desktop reboot/sign-in recovery remains untested. Physical PLC/client rig work remains separate and needs plant information/sign-off.
+
+### 2026-11-11: bootstrap file delivery
+
+Rechecked the pending access handoff: TCP 5985/5986 still did not accept connections on either remote device, and neither DPAPI credential file was present on the desktop. IPC RDP and laptop simulator remained reachable. `tailscale file cp --targets` listed both devices; `tailscale file cp --verbose tools/enable-lab-remoting.ps1 ipc:` and the same command targeting `mom-laptop:` each exited 0 and reported the file sent. The owner can receive the script through Tailscale instead of copying it from this checkout. Transfer does not prove receipt into a user folder or execution. No remote configuration, service or PLC setting changed. The required next action remains local execution of the bootstrap and desktop credential prompts.

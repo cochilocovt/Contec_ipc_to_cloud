@@ -16,7 +16,7 @@ Last updated 2026-11-11.
 
 ## Next steps, in order
 
-0. Complete [one-time command access](../lab-remote-access.md): the owner runs the remote bootstrap on the IPC/laptop and enters Windows credentials locally on this desktop. Neither device offered SSH or WinRM at the initial 2026-11-11 probe; IPC RDP was reachable. See [topic 10](topics/10-three-device-commissioning.md). The goal remains active; three-device completion is not claimed.
+0. Complete [one-time command access](../lab-remote-access.md): the owner receives the bootstrap script (sent to both devices using Tailscale file transfer), runs it on the IPC/laptop and enters Windows credentials locally on this desktop. Neither device offered SSH or WinRM at the initial 2026-11-11 probe; a follow-up still found WinRM unavailable and credential files absent. IPC RDP was reachable. See [topic 10](topics/10-three-device-commissioning.md). The goal remains active; three-device completion is not claimed.
 1. Check the Unified Write Filter (`uwfmgr get-config`). If it's on, updates and every other change are thrown away at reboot, so this comes before anything else.
 2. Back up the CFast card before the big jump in Windows updates. If there's no USB CFast reader yet, do step 3 first and back up straight after.
 3. Finish Windows Update on the IPC until the newest hotfix is 2018 or later, then remove the `AllowEncryptionOracle` workaround on the home PC if it's still set, and check Remote Desktop still connects.

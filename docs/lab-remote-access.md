@@ -4,7 +4,11 @@ These scripts let the lead finish the three-device setup. They do not start the 
 
 ## 1. IPC and laptop
 
-Copy `tools/enable-lab-remoting.ps1` from this checkout to each device, for example its Desktop. No git, Python installation or repository update is needed to run this script. On the IPC:
+Copy `tools/enable-lab-remoting.ps1` from this checkout to each device, for example its Desktop. No git, Python installation or repository update is needed to run this script.
+
+On 2026-11-11 the lead also sent this script to both `ipc` and `mom-laptop` using Tailscale file transfer. Receive the file through Tailscale on each device and copy it to the Desktop before running the command below. A successful transfer does not mean the script has run.
+
+On the IPC:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\Desktop\enable-lab-remoting.ps1" -Device ipc
