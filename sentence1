@@ -1,0 +1,1 @@
+$labPassword = Read-Host -AsSecureString -Prompt 'Choose a temporary setup password'
