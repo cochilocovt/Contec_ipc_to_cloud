@@ -54,6 +54,10 @@ The PLC measures each stroke and writes it to a results buffer that the gateway 
 
 The main session runs on Opus 5.5 and owns planning, design, safety, explanations, review and commits. Two Haiku 5.5 subagents in `.claude/agents/` take deterministic work: `haiku-runner` (tests, exact edits, formatting, config checks) and `haiku-scout` (read-only lookups). Workers can't spawn their own workers, can't commit, and never touch the write path unless given exact text. Rules are in `CLAUDE.md` under "How to work".
 
+### 2026-11-11 · Codex counterpart: GPT 6.1 Sol leads, GPT 6 Luna workers
+
+Keep `cochilocovt/Contec_ipc_to_cloud` as the canonical repository. Alongside the existing Claude setup, Codex uses `gpt-6.1-sol` as lead and two `gpt-6-luna` workers at low reasoning: `luna_runner` for fully specified commands/exact edits and `luna_scout` for sourced read-only lookups. `AGENTS.md` preserves the lead's responsibilities, delegation brief, verification, safety boundaries and session-end log/commit/push workflow. `.codex/config.toml` limits concurrency to three workers and spawn depth to one; role files live in `.codex/agents/`. Codex workers inherit parent permissions, so scout read-only restrictions rely on instructions, with unnecessary capabilities disabled. Mapping, use cases and tested limits are in `codex-agents.md`. The Claude setup is preserved independently.
+
 ## Open questions
 
 - KV-X310 firmware, fitted units, OPC UA settings and the ladder program's variables (the client rig; see `pump-test-rig/client-questions.md`).

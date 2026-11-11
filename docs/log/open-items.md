@@ -24,7 +24,8 @@ Last updated 2026-11-11.
 
 ## Working setup
 
-New sessions should run on Opus 5.5 (lead) with the Haiku workers in `.claude/agents/`. Not yet confirmed in a live session that the workers load and run on Haiku 5.5; check at the start of the next session.
+- Claude: Opus 5.5 leads, with the Haiku workers in `.claude/agents/`. Their live loading/model execution is still unconfirmed.
+- Codex: GPT 6.1 Sol leads, with `luna_runner` and `luna_scout` on GPT 6 Luna at low reasoning in `.codex/agents/`. The main repository is `cochilocovt/Contec_ipc_to_cloud`; keep authorized project changes and session logs committed and pushed there. Both Codex roles loaded in a fresh CLI session on 2026-11-11; sourced lookup and exact-edit smoke tests passed. Model settings were verified from effective configuration, not independent backend attestation. See [../codex-agents.md](../codex-agents.md) for mapping, limits and validation. Start a fresh chat to load newly added roles; existing chats retain their loaded role list.
 
 ## Waiting on decisions or information
 

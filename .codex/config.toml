@@ -1,0 +1,11 @@
+# Project defaults; keep personal credentials and machine settings out of this file.
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
+web_search = "live"
+
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 3
+max_depth = 1
+default_subagent_model = "gpt-6-luna"
+default_subagent_reasoning_effort = "low"

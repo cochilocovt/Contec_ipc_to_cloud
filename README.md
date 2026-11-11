@@ -51,6 +51,8 @@ docs/
 
 Where things stand and what's next: [docs/log/open-items.md](docs/log/open-items.md). The history of every discussion and decision: [docs/log/](docs/log/README.md).
 
+Codex uses GPT 6.1 Sol as lead with two GPT 6 Luna workers, reproducing the Claude agent workflow. See [AGENTS.md](AGENTS.md) and [docs/codex-agents.md](docs/codex-agents.md) for roles, use cases and setup.
+
 ## Run it on one Windows machine
 
 Quickest way to try the gateway alone. You need Python 3.10 or newer (64-bit) and an MQTT broker: either `docker compose up -d` in `cloud/` (see home-lab.md) or Mosquitto for Windows from mosquitto.org started with `mosquitto -v`.
