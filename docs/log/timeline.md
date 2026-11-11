@@ -129,3 +129,6 @@ Guide audit found SMBv1 enabled and time sync stopped. Disabled server SMBv1, ma
 
 **Correct and measure the IPC clock while awaiting native cleanup.**
 Successful NTP responses still left about 1.3 s offset. Changed local special polling to adaptive client mode and adjusted the local polling/correction intervals using documented Windows controls. Independent samples then measured under 0.005 s against Microsoft's time server; cloud freshness passed. Cleanup remains active with increasing CPU time/free space; no duplicate job, cumulative install or restart was sent. → [topics/10](topics/10-three-device-commissioning.md)
+
+**Verify the running cleanup's actual runtime boundary.**
+The same DISM/TiWorker execution remains active and freeing space. Exported XML confirms zero scheduled triggers; Microsoft's API documentation says the stored execution limit is bypassed for an on-demand run. Recorded this correction so two hours is not mistaken for a failure deadline. Continue waiting for the actual native terminal result. → [topics/10](topics/10-three-device-commissioning.md)
