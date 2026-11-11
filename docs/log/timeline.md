@@ -123,3 +123,6 @@ The owner explicitly declined the final backup, so it is no longer an acceptance
 
 **Verify the IPC's baseline download and prepare desktop reboot acceptance.**
 The baseline download completed at `06:44:31Z`; lead re-hashing on the IPC matched its exact size and SHA-256. Cleanup remains active and has marked a restart pending; no parallel cumulative install or restart was sent. Desktop AutoStart/service/freshness preflight passed, and the owner was asked for desktop restart approval because it will close Codex/other apps. → [topics/10](topics/10-three-device-commissioning.md)
+
+**Close actual housekeeping gaps while servicing continues.**
+Guide audit found SMBv1 enabled and time sync stopped. Disabled server SMBv1, made all firewall inbound defaults explicitly Block, and enabled/started automatic Windows Time; NTP resync and continued telemetry passed. Full SMBv1 feature/client removal and final clock accuracy remain queued. Verified the existing Contec utility/drivers and its installed BX-220D/LTSB 2016 documentation; no utility reinstall or watchdog change. Independently accepted Luna Scout's bounded vendor-document facts, with missing timing/tokens and invocation uncertainty retained. The same native cleanup remains active and progressing. → [topics/10](topics/10-three-device-commissioning.md)
