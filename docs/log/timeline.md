@@ -132,3 +132,6 @@ Successful NTP responses still left about 1.3 s offset. Changed local special po
 
 **Verify the running cleanup's actual runtime boundary.**
 The same DISM/TiWorker execution remains active and freeing space. Exported XML confirms zero scheduled triggers; Microsoft's API documentation says the stored execution limit is bypassed for an on-demand run. Recorded this correction so two hours is not mistaken for a failure deadline. Continue waiting for the actual native terminal result. → [topics/10](topics/10-three-device-commissioning.md)
+
+**Inspect the rendered dashboard while preserving the owner's restart order.**
+An isolated browser rendered all nine live panels and selected `press-01` by default. Recorded a small negative reading age and measured desktop clock offset for later alignment checks; no freshness/payload rule was relaxed. Closed/revoked the temporary browser session and removed its auth-state file. The owner deferred desktop restart until IPC servicing finishes. The same IPC cleanup remains active with more free space and progressing CBS transactions. → [topics/10](topics/10-three-device-commissioning.md)
