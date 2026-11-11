@@ -1,0 +1,19 @@
+& {
+    $ErrorActionPreference = 'Stop'
+    $name = 'ipc-lab-setup'
+    $account = Get-LocalUser -Name $name -ErrorAction SilentlyContinue
+    if ($account -and $account.Description -ne 'Temporary home-lab setup') {
+        throw 'An existing account has this name. Tell Codex before continuing.'
+    }
+    if ($account) {
+        Set-LocalUser -Name $name -Password $labPassword
+    } else {
+        New-LocalUser -Name $name -Password $labPassword -Description 'Temporary home-lab setup' | Out-Null
+    }
+    $account = Get-LocalUser -Name $name
+    $admins = Get-LocalGroup -SID 'S-1-5-32-544'
+    if (-not (Get-LocalGroupMember -Group $admins | Where-Object SID -eq $account.SID)) {
+        Add-LocalGroupMember -Group $admins -Member $account
+    }
+    Write-Host "Username: $env:COMPUTERNAME\$name"
+}
