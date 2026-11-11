@@ -99,3 +99,6 @@ Rechecked both devices: PowerShell remoting remained unavailable and local crede
 
 **Access dependency audit after three consecutive goal turns.**
 At `2026-11-11T02:27:30Z`, neither device accepted WinRM connections and neither credential file was present. With scripts prepared and delivered, further remote commissioning requires owner execution and local credential entry. Recorded the goal as blocked pending that external change; IPC configuration, service installation and actual three-device/recovery acceptance remain incomplete. → [topics/10](topics/10-three-device-commissioning.md)
+
+**Which credentials belong in the desktop prompts, and how does cleanup work after pasting the scripts?**
+Explained first IPC Windows administrator credentials, then laptop Windows administrator credentials (`whoami` on that device identifies the account); passwords rather than PINs. The owner then reported both remote devices READY. Independent probes at `2026-11-11T04:04:34Z` confirmed TCP 5985 open on both; desktop credential files were still absent. Clarified that `-Disable` belongs to the saved-script invocation, and that cleanup can still be performed after a pasted setup, once the saved policy state is verified. No cleanup or authenticated remote configuration was performed. → [topics/10](topics/10-three-device-commissioning.md)

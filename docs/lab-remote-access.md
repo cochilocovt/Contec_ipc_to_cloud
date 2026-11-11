@@ -41,6 +41,8 @@ The script adds only the two device IP addresses to WinRM TrustedHosts, preservi
 
 When both print `CONNECTED`, tell Codex **access is ready**. The lead can then inspect UWF, clock, updates, paths and processes; configure the IPC; install/start the gateway service; and test the actual three-device path. Tailscale addresses here are verified on 2026-11-11; the MQTT broker remains bound to the home LAN and must not be published to the tailnet or Internet.
 
+If you already pasted the remote script into PowerShell and it printed `READY`, continue with the desktop connection prompts rather than repeating setup. A popup alone does not prove the preceding steps succeeded; the lead still verifies the connections. `-Disable` is a parameter passed when launching the saved script, not a standalone PowerShell command. You can save the original remote script as a `.ps1` file later and use its cleanup command even if setup was originally pasted. Leave access enabled until commissioning is finished; the lead can verify the saved policy snapshot and perform equivalent cleanup remotely.
+
 ## Cleanup after commissioning
 
 On each remote device, run its first command again with `-Disable` appended. This closes the lab firewall rule and restores the original local-account token policy. WinRM and its session endpoints remain installed, but the standard WinRM firewall rules stay disabled. It does not restore an unrelated management setup; first-use checks refuse existing enabled WinRM rules for that reason.

@@ -8,7 +8,7 @@ Last updated 2026-11-11.
 |---|---|
 | IPC (BX-220) | On the home network and on Tailscale as `ipc` (`100.89.184.100`, key expiry disabled). Windows 10 IoT 1607, last patched December 2016; updates in progress |
 | Remote access | Working: Remote Desktop to the IPC over Tailscale (established by 2026-11-09). See [topics/06](topics/06-remote-access.md) |
-| Gateway code | Owner reports dependencies installed on the IPC. Gateway not yet run there; one-time authenticated command access is being prepared/tested with the owner |
+| Gateway code | Owner reports dependencies installed on the IPC. Both remote bootstraps now report READY and TCP 5985 accepts connections; desktop credential verification is pending. Gateway not yet run there |
 | Client rig | Requirements and design written in [../pump-test-rig/](../pump-test-rig/README.md); nothing built. Needs answers to the client questions first |
 | Cloud stack | Running on this PC: MQTT `192.168.1.20:1883`, Grafana `localhost:3000`, project DB `localhost:5433`. Local simulator → gateway → MQTT → DB → Grafana and container restart/data persistence passed; see [topics/08](topics/08-home-pc-setup.md) |
 | Simulated PLC on laptop | Running on `mom-laptop`, Tailscale `100.100.157.108:5020`. Read-only Modbus reads and laptop → temporary home-PC gateway → DB → authenticated Grafana query passed. Laptop startup/reboot and IPC → laptop path still untested |
@@ -16,7 +16,7 @@ Last updated 2026-11-11.
 
 ## Next steps, in order
 
-0. **Awaiting owner bootstrap; commissioning blocked.** Complete [one-time command access](../lab-remote-access.md): receive the script (sent to both devices using Tailscale file transfer), run it on the IPC/laptop and enter Windows credentials locally on this desktop. A third consecutive access audit at `2026-11-11T02:27:30Z` still found WinRM unavailable on both devices and both credential files absent. See [topic 10](topics/10-three-device-commissioning.md). Three-device completion is not claimed; resume after both desktop connection checks succeed.
+0. **Awaiting desktop credential verification.** The owner reports both remote scripts now print READY (their contents were pasted into administrator PowerShell). At `2026-11-11T04:04:34Z`, TCP 5985 accepted connections on both devices, but both desktop credential files were still absent. Finish the two prompts in [one-time command access](../lab-remote-access.md): first the IPC administrator account, then the laptop administrator account, using Windows passwords rather than PINs. See [topic 10](topics/10-three-device-commissioning.md). Three-device completion is not claimed; proceed after both desktop connection checks succeed.
 1. Check the Unified Write Filter (`uwfmgr get-config`). If it's on, updates and every other change are thrown away at reboot, so this comes before anything else.
 2. Back up the CFast card before the big jump in Windows updates. If there's no USB CFast reader yet, do step 3 first and back up straight after.
 3. Finish Windows Update on the IPC until the newest hotfix is 2018 or later, then remove the `AllowEncryptionOracle` workaround on the home PC if it's still set, and check Remote Desktop still connects.
