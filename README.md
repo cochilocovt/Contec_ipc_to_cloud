@@ -53,6 +53,17 @@ Where things stand and what's next: [docs/log/open-items.md](docs/log/open-items
 
 Codex uses GPT 6.1 Sol as lead with two GPT 6 Luna workers, reproducing the Claude agent workflow. See [AGENTS.md](AGENTS.md) and [docs/codex-agents.md](docs/codex-agents.md) for roles, use cases and setup.
 
+Both Sol/Luna and Opus/Haiku follow [the shared handoff and verification workflow](docs/agent-workflow.md). It includes evidence checks, capability preflight, bounded output, Windows helpers, executable acceptance and a delegation scorecard. From the repository root:
+
+```powershell
+gateway/.venv/Scripts/python.exe tools/check_home_lab.py
+gateway/.venv/Scripts/python.exe tools/check_home_lab.py --machine press-01 --max-age-s 30
+gateway/.venv/Scripts/python.exe tools/agent_task.py scorecard
+gateway/.venv/Scripts/python.exe -m unittest discover -s tools/tests -v
+```
+
+The health check is read-only; without `--machine`, telemetry freshness is explicitly not checked. The scorecard uses observed timings/outcomes and does not estimate savings.
+
 ## Run it on one Windows machine
 
 Quickest way to try the gateway alone. You need Python 3.10 or newer (64-bit) and an MQTT broker: either `docker compose up -d` in `cloud/` (see home-lab.md) or Mosquitto for Windows from mosquitto.org started with `mosquitto -v`.

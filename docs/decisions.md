@@ -62,6 +62,10 @@ Keep `cochilocovt/Contec_ipc_to_cloud` as the canonical repository. Alongside th
 
 The owner cannot create router reservations and reports the three device addresses have been stable. Use the current addresses without making router access a prerequisite or choosing manual static addresses from an unknown DHCP pool. Recheck addresses when a connection fails. Bind the open MQTT broker only to the selected home-LAN address (`MQTT_BIND_ADDRESS`), keep Grafana on loopback, and scope the Windows MQTT firewall rule to that adapter and local subnet. The project database host port is configurable (`DB_HOST_PORT`); this PC uses 5433 because its existing PostgreSQL service already owns 5432. No router port forwarding. Details and verified limits are in [the PC setup record](log/topics/08-home-pc-setup.md).
 
+### 2026-11-11 · One operational contract for both agent teams
+
+Keep Sol/Luna and Opus 5.5/Haiku 5.5 models, effort settings, responsibility boundaries and tool restrictions. Both teams follow [agent-workflow.md](agent-workflow.md): evidence with measured metadata, early capability checks, bounded output, shared Windows helpers, lead-authored executable acceptance, read-only lab health checks and a lead-owned delegation scorecard. Do not infer efficiency from a single session or fill missing timing/token data. Native Haiku Scout keeps Bash disabled; the lead supplies unavailable measurements. Helpers do not bypass policy or create a security boundary. Details and validation are in [topics/09](log/topics/09-agent-workflow-upgrades.md).
+
 ## Open questions
 
 - KV-X310 firmware, fitted units, OPC UA settings and the ladder program's variables (the client rig; see `pump-test-rig/client-questions.md`).

@@ -32,7 +32,13 @@ The lead keeps machine-control write-path work and safety rules, data-contract/s
 
 Read `docs/log/open-items.md` first, then give a numbered plan with each step assigned. Every worker brief includes the goal, exact paths and commands, exact edit text if relevant, what to return, done-when and what not to touch. Workers receive no conversation history (`fork_turns="none"` where supported). They share the checkout, must preserve concurrent changes and return `blocked` instead of guessing. The lead reads changed lines or reruns checks before relying on results. A task taking only one or two tool calls stays with the lead.
 
-The runner reports `Result`, `What I did`, `Output` and `Unexpected`; long output includes the summary, every failure/error and the last 40 lines. The scout reports `Found`, `Not found` and `Uncertain`, with sources for every factual finding. Neither worker may read secrets, delegate, launch another agent CLI, alter Git history/branches, send messages externally or control the owner's desktop.
+Both teams follow [the shared workflow](agent-workflow.md), including task IDs, timestamps or explicit unavailable timing, preflight, evidence, bounded artifacts, lead-authored executable acceptance and the lead-owned delegation scorecard. Reports are at most 6,000 characters; quoted lines at most 240. Full approved non-secret runner output stays under ignored `logs/agent-runs/`; scouts create no artifacts. Missing files, unreadable files and verified zero-byte files are distinct outcomes. Neither worker may read secrets, delegate, launch another agent CLI, alter Git history/branches, send messages externally or control the owner's desktop.
+
+## Shared operational upgrades
+
+`tools/agent_task.py` provides read-only evidence/preflight, exact edits with source hashes and match counts, shell-free UTF-8 command capture, acceptance checks and scorecard recording/summary. `tools/check_home_lab.py` checks services, published ports, Grafana HTTP health, database reads and optional telemetry freshness without publishing MQTT or touching a PLC. Examples and limitations are in [agent-workflow.md](agent-workflow.md).
+
+Haiku Scout retains its native Read/Grep/Glob tools and Bash denial. It reports byte sizes/hashes/timestamps it cannot measure as unavailable; the lead measures them separately. Codex Scout can use the helper's read-only evidence/preflight modes. This keeps responsibilities aligned while respecting the runtimes' different tool surfaces. Models and worker effort stay unchanged.
 
 ## Starting and using the setup
 

@@ -15,6 +15,14 @@ The main session (Opus 5.5) is the lead and owns the project: plans, design, saf
 - Don't delegate what you can do in one or two tool calls; starting a worker costs more than that. Run at most three workers at once, only on independent tasks.
 - Finish every session by updating the log (see "Keeping the log"), then commit and push yourself.
 
+### Evidence, handoffs and acceptance
+
+Follow [docs/agent-workflow.md](docs/agent-workflow.md) for both teams. Assign a task ID, dependencies, exact owned paths/commands, source hashes and replacement counts, preflight, artifact path, output limit and executable acceptance checks. Workers read that document in their bounded context. Check tools/access early; a probe does not guarantee later policy approval. On denial, stop and report the exact operation/error and partial changes; never bypass policy or silently switch roles/models.
+
+Require measured byte sizes (or explicitly unavailable), path/line excerpts and distinct found/empty/not-found/unreadable outcomes. Reports stay within 6,000 characters and quoted lines within 240; full approved non-secret runner output stays under ignored `logs/agent-runs/`. Use `tools/agent_task.py` for read-only evidence/preflight, UTF-8 command capture, hash/count-checked exact edits and lead-authored acceptance plans. A worker's `done` is not lead acceptance. Verify independently, including expected changed paths and secret exclusion.
+
+Use `tools/check_home_lab.py` for read-only service/port/Grafana/database checks; request `--machine` explicitly to check freshness. The lead interprets failures and chooses repairs. After review, the lead records actual task timing, outcome and correction time with `agent_task.py record`; summarize with `scorecard`. Workers never grade their own result or edit the ledger. Record observed tokens only and assess several sessions before changing models. Helpers are not security boundaries.
+
 ## Working style
 
 - Explain in plain language, step by step, and assume the owner is new to industrial controls when explaining hardware, PLCs or networking.
@@ -40,9 +48,10 @@ The main session (Opus 5.5) is the lead and owns the project: plans, design, saf
 
 ## Commands
 
-- Tests: `cd gateway && python -m pytest`
-- Cloud stack: `cd cloud && cp .env.example .env && docker compose up -d --build`; Grafana on :3000. Schema changes need `docker compose down -v` (wipes data).
-- Bench run: start the broker, `python tools/sim_plc.py --port 5020`, then `cd gateway && python -m ipc_gateway --config config/gateway.yaml`
+- Tests: `python -m pytest`, working directory `gateway/`.
+- Cloud stack: keep an existing `cloud/.env`; on first setup copy `.env.example` and set passwords/broker address, then run `docker compose up -d --build` from `cloud/`. Grafana on localhost:3000. Schema changes may need a migration; `docker compose down -v` wipes data and requires specific authorization.
+- Bench run: start the broker, `python tools/sim_plc.py --port 5020`, then `python -m ipc_gateway --config config/gateway.yaml` from `gateway/`.
+- On PowerShell 5.1 use separate commands or the tool's working-directory setting instead of `&&`.
 
 ## Target environment
 
