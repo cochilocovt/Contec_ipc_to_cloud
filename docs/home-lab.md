@@ -16,6 +16,8 @@ Three machines on the same home network stand in for the plant and the cloud.
 
 The KV-8000 can replace the laptop later. See decisions.md.
 
+For the lead to finish setup remotely, use the [one-time authenticated command-access steps](lab-remote-access.md). Tailscale reachability alone is not command access. Current commissioning evidence and remaining device checks are in [topic 10](log/topics/10-three-device-commissioning.md).
+
 ## 0. Write down the IP addresses
 
 On each machine run `ipconfig` and note the IPv4 address. In the steps below:
