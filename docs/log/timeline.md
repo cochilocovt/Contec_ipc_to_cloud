@@ -120,3 +120,6 @@ The IPC rebooted at `05:35:19Z`, completed pending servicing to registry build `
 
 **Remove the final CFast image from scope at the owner's request.**
 The owner explicitly declined the final backup, so it is no longer an acceptance requirement and no new image will be created. Other setup work continues. Component cleanup remains CPU-active; started only the verified-source baseline download into protected IPC staging, with size/hash checks before use. No cumulative installer has been started. → [topics/10](topics/10-three-device-commissioning.md)
+
+**Verify the IPC's baseline download and prepare desktop reboot acceptance.**
+The baseline download completed at `06:44:31Z`; lead re-hashing on the IPC matched its exact size and SHA-256. Cleanup remains active and has marked a restart pending; no parallel cumulative install or restart was sent. Desktop AutoStart/service/freshness preflight passed, and the owner was asked for desktop restart approval because it will close Codex/other apps. → [topics/10](topics/10-three-device-commissioning.md)
