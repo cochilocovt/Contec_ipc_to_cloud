@@ -24,7 +24,9 @@ On each machine run `ipconfig` and note the IPv4 address. In the steps below:
 - `LAPTOP_IP` is the spare laptop
 - `IPC_IP` is the BX-220
 
-Give all three fixed addresses (DHCP reservations on your router), or these settings break whenever an address changes.
+DHCP reservations are useful but are not a prerequisite for this lab. If the router does not allow them, use the current addresses and leave Windows on automatic DHCP. Do not pick a manual static address from an unknown DHCP pool: it could collide with another device. Recheck the addresses if a connection stops working.
+
+On 2026-11-11 this PC's connected Wi-Fi address was `192.168.1.20`; the IPC responded directly at `192.168.1.3` (Tailscale `100.89.184.100`). The Tailscale peer `mom-laptop` was offline; the spare laptop's LAN address was not confirmed. See [the local setup record](log/topics/08-home-pc-setup.md).
 
 ## 1. This PC: start the cloud stack
 
@@ -32,21 +34,30 @@ Needs Docker Desktop.
 
 ```powershell
 cd C:\Users\V.T\Documents\ipc_connection\cloud
-copy .env.example .env
-notepad .env                 # set three passwords
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+notepad .env                 # set three passwords and MQTT_BIND_ADDRESS=PC_IP
 docker compose up -d --build
 docker compose ps            # all four services should be Up; timescaledb (healthy)
 ```
 
-Open http://localhost:3000 and log in as `admin` with `GRAFANA_ADMIN_PASSWORD`. The "Machine overview" dashboard is empty until a gateway publishes.
+On this PC the passwords have already been generated in the ignored `cloud/.env`; keep that file and do not overwrite it with the example. Grafana's login is `admin` with the value of `GRAFANA_ADMIN_PASSWORD` from that file. Never commit it.
+
+Set `MQTT_BIND_ADDRESS` to this PC's home-LAN IPv4 address (`192.168.1.20` at setup). The default is loopback, so a fresh checkout does not expose the open broker. Do not set it to `0.0.0.0`. If this PC's address changes, update that value and the gateway's MQTT host, then run `docker compose up -d` again.
+
+If port 5432 is already occupied by another PostgreSQL installation, set `DB_HOST_PORT=5433` (or another unused port) in `.env`. This PC uses `127.0.0.1:5433`; the existing PostgreSQL service stays on 5432. Containers still connect to `timescaledb:5432` internally.
+
+Open http://localhost:3000. The "Machine overview" dashboard is empty until a gateway publishes. Grafana is bound to loopback and is accessible only from this PC.
 
 Allow the gateway to reach the broker. In an admin PowerShell:
 
 ```powershell
-New-NetFirewallRule -DisplayName "MQTT 1883 (home lab)" -Direction Inbound -Protocol TCP -LocalPort 1883 -Profile Private -Action Allow
+# From cloud/; choose the connected adapter's name and current LAN address.
+powershell -ExecutionPolicy Bypass -File ..\tools\enable-home-lab-network.ps1 -InterfaceAlias "Wi-Fi" -LanAddress 192.168.1.20
 ```
 
-Your home network must be set to Private in Windows network settings for this rule to apply. Port 3000 (Grafana) needs the same kind of rule only if you want to open the dashboard from another device. The database port listens on this PC only.
+Run that helper only on the trusted home network. It sets the selected adapter's network profile to Private and allows inbound TCP 1883 only on that adapter, at the supplied address, from the local subnet. Neither Grafana nor this project's database is published to the LAN. No router port forwarding is needed.
+
+All four containers use `restart: unless-stopped`. Docker Desktop must be running; its **Start Docker Desktop when you sign in** setting is enabled on this PC. After signing in, check `docker compose ps`. A container restart with data persistence has been tested; a full PC reboot has not. To stop without deleting data use `docker compose stop`; start again with `docker compose up -d`.
 
 ## 2. Spare laptop: run the simulated PLC
 
@@ -103,8 +114,8 @@ Within a few seconds the dashboard shows Gateway Online and live readings. Set t
 Set `control.enabled: true` and `control.heartbeat.enabled: true` in `gateway.yaml` and restart the gateway. Then, from this PC (with Python and `gateway\requirements.txt` installed):
 
 ```powershell
-python tools\send_command.py motor_start --host localhost --by vaibhav
-python tools\send_command.py motor_stop  --host localhost --by vaibhav
+python tools\send_command.py motor_start --host PC_IP --by vaibhav
+python tools\send_command.py motor_stop  --host PC_IP --by vaibhav
 ```
 
 The command and its result appear in "Recent commands" and the motor tile changes. Things to try:

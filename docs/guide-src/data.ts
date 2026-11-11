@@ -22,7 +22,7 @@ export const DEVICES: Device[] = [
       "The ipc_connection repo, and send_command.py for test commands",
       "Your browser, for the Grafana dashboard",
     ],
-    ports: "Listens on 1883 (MQTT) and 3000 (Grafana). Database on 5432, this PC only.",
+    ports: "MQTT on the configured home-LAN address:1883. Grafana on localhost:3000. Database on localhost:5432 (5433 on this PC).",
     plant: "Becomes a cloud VM or a managed IoT service, with TLS and per-device certificates.",
     ipKey: "PC_IP",
   },
@@ -106,16 +106,16 @@ export const PHASES: Phase[] = [
       },
       {
         id: "net-reserve",
-        title: "Reserve those addresses on your router",
+        title: "Use the current addresses; reserve them when possible",
         devices: ["pc", "laptop", "ipc"],
-        why: "Home routers hand out addresses that can change after a reboot. If one changes, the gateway silently loses the PLC or the broker.",
+        why: "Router reservations are optional for this lab. Current stable addresses are enough; recheck them if the PLC or broker becomes unreachable.",
         steps: [
-          "Run ipconfig /all on each machine and note its Physical Address (MAC).",
-          "In your router's admin page, find DHCP or LAN settings, then Address Reservation.",
-          "Bind each MAC to the IP address it has now.",
+          "Keep Windows on automatic DHCP and record each connected adapter address with ipconfig /all.",
+          "If router reservations are available later, reserve the current addresses. Do not choose static addresses from an unknown DHCP pool.",
+          "If an address changes, update the gateway hosts and the PC MQTT_BIND_ADDRESS in cloud/.env, then run docker compose up -d.",
         ],
         code: "ipconfig /all",
-        done: "After a restart, each machine still has the same address.",
+        done: "Current addresses are recorded; router access is not a setup prerequisite.",
       },
       {
         id: "net-private",
@@ -312,11 +312,11 @@ export const PHASES: Phase[] = [
       },
       {
         id: "cl-env",
-        title: "Set the three passwords",
+        title: "Set the passwords and broker address",
         devices: ["pc"],
         why: "The database, Grafana's read-only database login and the Grafana admin account each need one. They live in .env, which git ignores.",
-        code: "cd C:\\Users\\V.T\\Documents\\ipc_connection\\cloud\ncopy .env.example .env\nnotepad .env",
-        done: ".env has your own passwords, not change-me.",
+        code: "cd C:\\Users\\V.T\\Documents\\ipc_connection\\cloud\nif (-not (Test-Path .env)) { Copy-Item .env.example .env }\nnotepad .env\n\n# Set MQTT_BIND_ADDRESS={PC_IP}\n# Set DB_HOST_PORT=5433 if 5432 is occupied",
+        done: ".env has unique passwords, MQTT_BIND_ADDRESS set to this PC LAN address, and DB_HOST_PORT=5433 if 5432 is occupied. Keep an existing .env.",
       },
       {
         id: "cl-up",
@@ -339,8 +339,8 @@ export const PHASES: Phase[] = [
         title: "Let the IPC reach the broker",
         devices: ["pc"],
         why: "Windows Firewall blocks incoming connections by default, including the gateway's MQTT connection.",
-        code: "New-NetFirewallRule -DisplayName \"MQTT 1883 (home lab)\" -Direction Inbound -Protocol TCP -LocalPort 1883 -Profile Private -Action Allow",
-        done: "The rule appears in Windows Defender Firewall → Inbound Rules.",
+        code: "powershell -ExecutionPolicy Bypass -File ..\\tools\\enable-home-lab-network.ps1 -InterfaceAlias \"Wi-Fi\" -LanAddress {PC_IP}",
+        done: "The selected home adapter is Private; the MQTT rule allows only its LAN address and local subnet.",
       },
       {
         id: "cl-python",
@@ -474,7 +474,7 @@ export const PHASES: Phase[] = [
         title: "Start and stop the motor from this PC",
         devices: ["pc"],
         why: "send_command.py does what the web app's buttons will do: publish a command with an id and a 10-second expiry.",
-        code: "cd C:\\Users\\V.T\\Documents\\ipc_connection\npython tools\\send_command.py motor_start --host localhost --by vaibhav\npython tools\\send_command.py motor_stop --host localhost --by vaibhav",
+        code: "cd C:\\Users\\V.T\\Documents\\ipc_connection\npython tools\\send_command.py motor_start --host {PC_IP} --by vaibhav\npython tools\\send_command.py motor_stop --host {PC_IP} --by vaibhav",
         done: "Each prints accepted then executed. The Motor tile changes, and both commands appear under Recent commands.",
       },
       {
@@ -482,7 +482,7 @@ export const PHASES: Phase[] = [
         title: "Send a command that's already expired",
         devices: ["pc"],
         why: "A start that arrives late after a network hiccup must never run.",
-        code: "python tools\\send_command.py motor_start --host localhost --ttl -5",
+        code: "python tools\\send_command.py motor_start --host {PC_IP} --ttl -5",
         done: "The ack says expired, and the motor doesn't move.",
       },
       {
@@ -490,7 +490,7 @@ export const PHASES: Phase[] = [
         title: "Send a command that isn't on the allowlist",
         devices: ["pc"],
         why: "The cloud can only ask for named commands. Anything else is refused at the gateway.",
-        code: "python tools\\send_command.py write_anything --host localhost",
+        code: "python tools\\send_command.py write_anything --host {PC_IP}",
         done: "The ack says rejected, \"command not allowed\".",
       },
       {
@@ -499,7 +499,7 @@ export const PHASES: Phase[] = [
         devices: ["laptop", "pc"],
         why: "At the plant, the operator's Local/Remote switch must always win over the cloud.",
         steps: ["On the laptop press Ctrl+C, then restart the simulator in LOCAL mode. Send a start from this PC. Afterwards restart the simulator normally."],
-        code: "tools\\run-sim.bat --mode local\n\n# on this PC\npython tools\\send_command.py motor_start --host localhost",
+        code: "tools\\run-sim.bat --mode local\n\n# on this PC\npython tools\\send_command.py motor_start --host {PC_IP}",
         done: "The ack says rejected, \"machine in LOCAL mode\". The Mode tile shows Local.",
       },
       {

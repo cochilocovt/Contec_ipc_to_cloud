@@ -58,6 +58,10 @@ The main session runs on Opus 5.5 and owns planning, design, safety, explanation
 
 Keep `cochilocovt/Contec_ipc_to_cloud` as the canonical repository. Alongside the existing Claude setup, Codex uses `gpt-6.1-sol` as lead and two `gpt-6-luna` workers at low reasoning: `luna_runner` for fully specified commands/exact edits and `luna_scout` for sourced read-only lookups. `AGENTS.md` preserves the lead's responsibilities, delegation brief, verification, safety boundaries and session-end log/commit/push workflow. `.codex/config.toml` limits concurrency to three workers and spawn depth to one; role files live in `.codex/agents/`. Codex workers inherit parent permissions, so scout read-only restrictions rely on instructions, with unnecessary capabilities disabled. Mapping, use cases and tested limits are in `codex-agents.md`. The Claude setup is preserved independently.
 
+### 2026-11-11 · Proceed with current DHCP addresses for the home lab
+
+The owner cannot create router reservations and reports the three device addresses have been stable. Use the current addresses without making router access a prerequisite or choosing manual static addresses from an unknown DHCP pool. Recheck addresses when a connection fails. Bind the open MQTT broker only to the selected home-LAN address (`MQTT_BIND_ADDRESS`), keep Grafana on loopback, and scope the Windows MQTT firewall rule to that adapter and local subnet. The project database host port is configurable (`DB_HOST_PORT`); this PC uses 5433 because its existing PostgreSQL service already owns 5432. No router port forwarding. Details and verified limits are in [the PC setup record](log/topics/08-home-pc-setup.md).
+
 ## Open questions
 
 - KV-X310 firmware, fitted units, OPC UA settings and the ladder program's variables (the client rig; see `pump-test-rig/client-questions.md`).

@@ -1,10 +1,10 @@
 # Home-lab cloud stack: MQTT broker, TimescaleDB, ingest service, Grafana.
 # Runs on any machine with Docker. See docs/home-lab.md.
 #
-#   cp .env.example .env      (then set the passwords)
+#   cp .env.example .env      (then set passwords and MQTT_BIND_ADDRESS)
 #   docker compose up -d --build
 #
-# Grafana:  http://localhost:3000   MQTT: port 1883   Postgres: localhost:5432 (this machine only)
+# Grafana: localhost:3000; MQTT: configured LAN IP:1883; Postgres: localhost:DB_HOST_PORT
 
 name: ipc-cloud
 
@@ -13,7 +13,7 @@ services:
     image: eclipse-mosquitto:2.0.20
     restart: unless-stopped
     ports:
-      - "1883:1883"
+      - "${MQTT_BIND_ADDRESS:-127.0.0.1}:1883:1883"
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - mosquitto-data:/mosquitto/data
@@ -27,7 +27,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
       GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:?set GRAFANA_DB_PASSWORD in .env}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${DB_HOST_PORT:-5432}:5432"
     volumes:
       - ./db/init:/docker-entrypoint-initdb.d:ro
       - db-data:/var/lib/postgresql/data
@@ -57,7 +57,7 @@ services:
       timescaledb:
         condition: service_healthy
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD in .env}
       GF_USERS_ALLOW_SIGN_UP: "false"
