@@ -1,33 +1,48 @@
 # Open items
 
-Last updated 2026-11-11.
+Last updated 2026-11-12, from read-only checks at `2026-11-12T09:04:15Z`–`2026-11-12T09:11:25Z`.
+
+The full setup remains paused. The owner has temporarily stopped Docker and taken the simulator laptop off the home LAN. Restore the lab only when the owner is ready.
 
 ## Where things stand
 
-| Area | State |
+| Area | Current state |
 |---|---|
-| IPC (BX-220) | Restarted at `2026-11-11T05:35:19Z`; registry build `14393.2906`, CBS pending cleared, gateway/Tailscale/WinRM recovered before sign-in. KB5126649 SSU confirmed installed. Built-in component cleanup is running as `IPC-HomeLab-ComponentCleanup` (DISM PID 4648, TiWorker PID 4856 at last observation); monitor that task rather than restarting it |
-| Remote access | Administrator WinRM sessions verified on both devices. Laptop uses a temporary `ipc-lab-setup` account; the owner's normal PIN account was not changed. Temporary access/account cleanup remains pending final acceptance. See [topic 10](topics/10-three-device-commissioning.md) |
-| Gateway code | Running on the IPC as automatic `ipc-gateway` NSSM service. Python 3.13.17 and pinned dependencies verified; gateway source hashes match this checkout. Durable control/heartbeat writes disabled. Automatic process recovery and fresh telemetry passed |
-| IPC housekeeping | Firewall profiles explicitly Block; SMBv1 server disabled, but Windows feature/client removal is still queued after servicing. Windows Time is Running/Automatic; three measured offsets were under 0.005 s at `07:23:11Z` after correcting polling/correction settings. Recheck after reboot. CONTECManager 3.0.0 and both Contec drivers are already installed; its GUI-opening check remains |
-| Client rig | Requirements and design written in [../pump-test-rig/](../pump-test-rig/README.md); nothing built. Needs answers to the client questions first |
-| Cloud stack | Running: MQTT `192.168.1.20:1883`, Grafana `localhost:3000`, project DB `localhost:5433`. Actual laptop → IPC → DB → authenticated Grafana query passed. Ingest now keeps a persistent MQTT session; a full-minute broker outage replayed all samples without sequence gaps. See [topic 10](topics/10-three-device-commissioning.md) |
-| Simulated PLC on laptop | Rebooted at `2026-11-11T05:49:05Z`; simulator/Tailscale/WinRM and LAN listener recovered before sign-in, with the same `.10` address. Automatic NSSM `ipc-simulator`, REMOTE mode, 6 s timeout. Bench command/guard/heartbeat tests passed; restored stopped/fault 0. Permanent gateway remains read-only |
-| Backup of the CFast card | Owner earlier reported a verified original backup; its artifact was not inspected. Owner has now explicitly excluded the final updated-card backup from this setup. No new image will be created |
+| IPC cleanup | **Completed successfully.** CBS records maintenance completion with `S_OK` at about `2026-11-11T09:43:42Z`. The task is no longer running; no DISM/TiWorker/WUSA processes were present at the status check. Task Scheduler's result 259 is not the success receipt; the CBS completion record is the evidence |
+| IPC Windows | Build remains `14393.2906`. About **13.1 GiB free** (14,087,323,648 bytes); **no pending servicing reboot**. SSU KB5126649 is installed. Baseline KB5062560 and security update KB5126868 are not installed; the baseline MSU is still staged on the IPC |
+| IPC startup | Booted at `2026-11-12T04:45:45Z`. Gateway, Tailscale, WinRM and Windows Time are Running/Automatic. Windows logged an unexpected previous shutdown; the cause is not established. This is not a controlled power-restoration/BIOS test |
+| IPC housekeeping | Time settings survived reboot; three NTP offsets today were within 0.002 s of the configured Microsoft server. Server SMBv1 remains disabled; its client driver startup is still 2, so full SMBv1 feature/client removal remains pending. Durable control and heartbeat are still disabled |
+| Desktop/cloud | Desktop reboot confirmed at `2026-11-12T04:45:51Z`. Docker's Windows service is currently Stopped and no Docker Desktop/backend processes were present, matching the owner's intentional shutdown. The four-service stack and dashboard were not started or retested today |
+| Simulator laptop | Currently off the home LAN, per owner. Its automatic simulator service, process recovery and unattended reboot passed on 2026-11-11; current simulator operation is not being claimed |
+| Remote access | IPC command access still works. Temporary WinRM/token-policy changes, saved desktop credentials and the temporary laptop setup account still need final cleanup after acceptance |
+| CFast image | **Excluded at the owner's request.** No new backup/image will be created. The earlier original-backup confirmation remains owner-reported history |
 
-## Next steps, in order
+## Completed and previously tested
 
-1. **Monitor the running IPC component cleanup, then finish applicable Windows updates.** Both remote reboot tests passed before sign-in. The original IPC monitor `40380` ended on an obsolete remote shell; a fresh session proved the reboot. Do not rerun that restart. Official SSU KB5126649 is already installed; July 2025 baseline KB5062560 is the documented prerequisite for October 2026 security update KB5126868. The baseline download completed on the IPC at `06:44:31Z`; the lead independently verified its size/SHA-256. Other verified installers remain on this desktop under ignored `logs/vendor/windows-updates/`. At `07:55:24Z`, cleanup was still active and CBS reboot pending; await terminal cleanup, finish its restart and recheck free space before installing the baseline. Remove the home-PC CredSSP workaround through a reviewed administrator action.
-2. Finish the guide's housekeeping checks after cleanup: disable the SMBv1 Windows feature/client, verify time sync persists after reboot, remove the desktop CredSSP workaround through an administrator action and test RDP. Server SMBv1 is already off; the clock now uses `time.windows.com,0x8`, polling bounds 6/10 and correction interval 100. Three independent samples at `07:23:11Z` were within 0.005 s of that server. After the baseline/security updates, run a fresh Windows Update scan; package staging alone does not prove no applicable updates remain.
-3. **Owner deferred the desktop restart until IPC servicing is finished.** Then confirm readiness before restarting this PC to test Docker/all four services. AutoStart and preflight passed. Actual browser check rendered all nine panels and defaulted to `press-01`; its Last reading showed a small negative age while the desktop measured about 0.14–0.17 s behind Microsoft's time server. Recheck desktop/database clock alignment and dashboard age after servicing/reboot; preserve the raw timestamps and existing freshness checks meanwhile. See topic 10. IPC/laptop reboot recovery is already verified; desktop recovery remains untested.
-4. Complete the guide's physical cable-loss and power-loss checks and open the installed Contec utility once to check for errors. The software heartbeat-loss test passed; it is not evidence of physical cable removal or BIOS power-loss recovery. Contec's installed readme explicitly supports BX-220D/LTSB 2016; no utility upgrade or watchdog setting change was made. The owner has explicitly excluded the finished-card image from the remaining scope.
-5. Remove temporary WinRM access, restore the saved local-account token policy and desktop TrustedHosts changes, delete saved DPAPI credentials, and remove the temporary laptop account. Update the final commissioning record. The complete setup is not yet claimed.
+- [x] Install/configure the IPC gateway as an automatic NSSM service; test automatic process recovery.
+- [x] Install the laptop simulator as an automatic service; test recovery and startup before sign-in.
+- [x] Prove the actual laptop → IPC → broker → database → Grafana path (2026-11-11).
+- [x] Prove simulator-only Start/Stop, duplicate/expiry/allowlist/TTL/UTC-offset guards, LOCAL-mode refusal and heartbeat-loss stop. Restore durable control/heartbeat to disabled.
+- [x] Prove full-minute broker outage/replay without missing sample sequences; retain the ingest persistent-session fix.
+- [x] Render all nine dashboard panels and default to `press-01`; record the small negative reading-age observation for later clock-alignment checks.
+- [x] Complete IPC component cleanup and recheck free space/reboot state.
+- [x] Verify IPC time-sync settings persist after today's reboot. Confirm that the desktop has also restarted.
+
+## Remaining tasks, in order when work resumes
+
+1. [ ] **Finish IPC Windows servicing:** install the staged KB5062560 baseline, then the documented KB5126868 security update with required restarts and service checks. Run a fresh Windows Update scan afterwards; downloaded packages alone are not proof that all applicable updates are installed. Recheck applicability and space before each operation.
+2. [ ] **Finish housekeeping:** disable the SMBv1 Windows feature/client; remove the desktop's temporary CredSSP workaround through an administrator action; verify RDP with normal security settings. Open the existing Contec utility once and check for errors without changing watchdog settings.
+3. [ ] **Restore the lab when the owner is ready:** return the simulator laptop to the home LAN, check all three LAN addresses, and start Docker/the four cloud services. Verify Docker recovery, fresh three-device data and the dashboard. Investigate desktop/database clock alignment and the previously negative reading age; keep raw timestamps and freshness checks intact meanwhile.
+4. [ ] **Complete hands-on acceptance:** physical IPC network-cable loss while the simulator runs, then controlled IPC power-loss/restoration and BIOS automatic-power-on behavior. Prior software heartbeat/reboot tests do not replace these checks.
+5. [ ] **Close temporary setup access after acceptance:** remove the laptop setup account, restore local-account token policies and desktop TrustedHosts additions, close lab WinRM rules and delete saved DPAPI credentials. Record final results.
+
+The home lab is not yet declared fully complete. Production cloud choices, plant control approval, ESU enquiries and the client rig remain separate follow-ups below.
 
 ## Working setup
 
 - Claude: Opus 5.5 leads, with the Haiku workers in `.claude/agents/`. Both roles completed live CLI smoke tests on 2026-11-11; model-usage metadata reported the selected Opus/Haiku 5.5 identifiers, without independent backend attestation. Both teams now follow [the shared workflow](../agent-workflow.md), with evidence, preflight, bounded output, Windows helpers, executable acceptance, read-only health checks and a lead-owned scorecard. See [topics/09](topics/09-agent-workflow-upgrades.md).
 - Codex: GPT 6.1 Sol leads, with `luna_runner` and `luna_scout` on GPT 6 Luna at low reasoning in `.codex/agents/`. The main repository is `cochilocovt/Contec_ipc_to_cloud`; keep authorized project changes and session logs committed and pushed there. Both Codex roles loaded in a fresh CLI session on 2026-11-11; sourced lookup and exact-edit smoke tests passed. Model settings were verified from effective configuration, not independent backend attestation. See [../codex-agents.md](../codex-agents.md) for mapping, limits and validation. Start a fresh chat to load newly added roles; existing chats retain their loaded role list.
-- The shared upgrades were tested with both teams. Helper/health unit tests: 18 passed; gateway tests: 18 passed; infrastructure health passed. Actual three-device telemetry and isolated bench-control acceptance now pass; full-device reboot/physical acceptance remains pending above. The initial [delegation scorecard](delegation-scorecard.jsonl) includes blocked/rejected tasks with causes and explicit measurement limits. Start a fresh Codex chat to load the updated role definitions.
+- The shared upgrades were tested with both teams. Helper/health unit tests: 18 passed; gateway tests: 18 passed; infrastructure health passed. Three-device telemetry and isolated bench-control acceptance passed on 2026-11-11. IPC/laptop full reboot recovery passed; desktop Docker recovery and physical acceptance remain pending above. The initial [delegation scorecard](delegation-scorecard.jsonl) includes blocked/rejected tasks with causes and explicit measurement limits. Start a fresh Codex chat to load the updated role definitions.
 
 ## Waiting on decisions or information
 

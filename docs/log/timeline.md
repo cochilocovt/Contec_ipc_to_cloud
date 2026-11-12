@@ -135,3 +135,8 @@ The same DISM/TiWorker execution remains active and freeing space. Exported XML 
 
 **Inspect the rendered dashboard while preserving the owner's restart order.**
 An isolated browser rendered all nine live panels and selected `press-01` by default. Recorded a small negative reading age and measured desktop clock offset for later alignment checks; no freshness/payload rule was relaxed. Closed/revoked the temporary browser session and removed its auth-state file. The owner deferred desktop restart until IPC servicing finishes. The same IPC cleanup remains active with more free space and progressing CBS transactions. → [topics/10](topics/10-three-device-commissioning.md)
+
+## 2026-11-12
+
+**Check IPC progress and refresh the task list while the lab is intentionally offline.**
+CBS confirms the previous component cleanup completed successfully; the IPC now has about 13.1 GiB free and no pending reboot. Build remains 14393.2906, so the staged baseline/security cumulative updates remain pending. IPC services and time settings survived a later boot, though Windows records an unexpected preceding shutdown. Confirmed the desktop restarted and Docker is currently stopped; the owner reports the simulator laptop off the home LAN. Updated the checklist without starting services, installers or restarts, and kept the broader goal paused. → [topics/10](topics/10-three-device-commissioning.md)
