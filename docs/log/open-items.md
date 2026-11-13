@@ -1,6 +1,6 @@
 # Open items
 
-Last updated 2026-11-12, from read-only checks at `2026-11-12T09:04:15Z`–`2026-11-12T09:11:25Z`.
+Last updated 2026-11-13 for the client machine-file assessment. Home-lab status below remains from read-only checks at `2026-11-12T09:04:15Z`–`2026-11-12T09:11:25Z`; it was not retested this session.
 
 The full setup remains paused. The owner has temporarily stopped Docker and taken the simulator laptop off the home LAN. Restore the lab only when the owner is ready.
 
@@ -45,6 +45,8 @@ The home lab is not yet declared fully complete. Production cloud choices, plant
 - The shared upgrades were tested with both teams. Helper/health unit tests: 18 passed; gateway tests: 18 passed; infrastructure health passed. Three-device telemetry and isolated bench-control acceptance passed on 2026-11-11. IPC/laptop full reboot recovery passed; desktop Docker recovery and physical acceptance remain pending above. The initial [delegation scorecard](delegation-scorecard.jsonl) includes blocked/rejected tasks with causes and explicit measurement limits. Start a fresh Codex chat to load the updated role definitions.
 
 ## Waiting on decisions or information
+
+- **ETO & Dose Tester file review (2026-11-13):** [assessment and implementation gaps](../pump-test-rig/machine-file-review-2026-11-13.md). Proposal shows upper force and lower dose measurement; orders specify 100 N/20 N sensors and a two-channel analog amplifier. Confirm installed channel assignment/output range, PLC analog modules and whole-chain accuracy before implementing. Obtain PLC/HMI projects, electrical I/O schedule and approved ETO/dose criteria. Prior single-load-cell proposals need the assessment's force-channel additions. This documentation review did not resume the paused home lab or change machine-control code.
 
 - Client rig answers: [client-questions.md](../pump-test-rig/client-questions.md), especially the servo, the load cell, what "load cell adjustment" means, and target output with tolerance.
 - Whether the client's KV-X310 has its OPC UA server enabled, and the ladder program's variables.

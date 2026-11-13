@@ -140,3 +140,8 @@ An isolated browser rendered all nine live panels and selected `press-01` by def
 
 **Check IPC progress and refresh the task list while the lab is intentionally offline.**
 CBS confirms the previous component cleanup completed successfully; the IPC now has about 13.1 GiB free and no pending reboot. Build remains 14393.2906, so the staged baseline/security cumulative updates remain pending. IPC services and time settings survived a later boot, though Windows records an unexpected preceding shutdown. Confirmed the desktop restarted and Docker is currently stopped; the owner reports the simulator laptop off the home LAN. Updated the checklist without starting services, installers or restarts, and kept the broader goal paused. → [topics/10](topics/10-three-device-commissioning.md)
+
+## 2026-11-13
+
+**Review the ETO & Dose Tester machine files and identify program changes.**
+Inventoried the supplied machine folder; read proposal/drawing, instrument orders and customer references. Found separate upper force and lower dose measurement, ordered 100 N/20 N sensors and a two-channel analog amplifier. Documented PLC/HMI, gateway, result-storage and reporting gaps, conditional measurement-accuracy concern, source inconsistencies and required inputs. No native CAD rebuild, hardware test or PLC/HMI source review was performed; no program/service changes. Accepted a bounded Luna Scout supporting-file extraction after independent slide/hash and selected file checks. Home lab stays paused. → [machine assessment](../pump-test-rig/machine-file-review-2026-11-13.md)

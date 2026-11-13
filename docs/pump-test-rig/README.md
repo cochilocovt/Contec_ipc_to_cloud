@@ -1,5 +1,7 @@
 # Pump test rig (client machine)
 
+**2026-11-13 machine-file assessment:** [ETO & Dose Tester review](machine-file-review-2026-11-13.md) adds evidence from the proposal, drawing, instrument orders and customer references. The design needs two channels: pressing force and dispensed dose. Ordered sensors are 100 N and 20 N, with a two-channel analog amplifier; installed mapping/ranges remain unverified. Read that assessment before using the earlier single-load-cell proposals below. The source folder does not independently confirm the PLC CPU or contain a PLC/HMI program.
+
 Requirements captured 2026-11-05. Nothing in this folder is built yet: it is the design for the real client machine, kept apart from the home lab. The home-lab setup (`cloud/`, `gateway/`, `tools/`, `docs/home-lab*`) is unchanged and still runs against the simulated PLC.
 
 ## The machine

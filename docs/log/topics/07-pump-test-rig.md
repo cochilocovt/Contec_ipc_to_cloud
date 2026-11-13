@@ -2,6 +2,12 @@
 
 The design lives in [../../pump-test-rig/](../../pump-test-rig/README.md). This note records how it came about and what was checked.
 
+## Machine-file assessment (2026-11-13)
+
+Reviewed the supplied ETO & Dose Tester folder (373 files), all PDF/slide text, rendered machine/instrument pages and customer images. The proposal has two load-cell functions: pressing force above the pump and dose weighing below. Orders specify UCW2-20N and UNLRS-100N sensors plus a Burster 9236-V200 two-channel analog amplifier; the installed assignment and output/input range still need confirmation. Force acquisition and synchronized force/dose records must be added to the earlier dose-focused proposal. Flagged the conditional full-scale accuracy concern before promising small-dose performance, conflicting drawing/proposal envelopes and an unexplained four-camera slide.
+
+The [detailed assessment](../../pump-test-rig/machine-file-review-2026-11-13.md) records source hashes, uncertainty, exact software gaps and an implementation/acceptance order. Native CAD geometry/active references, installed hardware and PLC/HMI programs were not validated. No machine or home-lab program/service changes. Luna Scout's supporting-file extraction was independently accepted; timing/measurement limits are in the delegation scorecard.
+
 ## The brief (2026-11-05)
 
 The client machine is a small rig that measures the volumetric output of a liquid dispensing pump, like a hand-soap pump, to show how consistent a pump's output is across strokes and runs. The PLC is a Keyence KV-X310. The client wants remote start/stop, remote adjustment of a servo and of the load cell, and a dashboard with analytics. The owner asked for it to be documented separately, leaving the home-lab experiment as it is.
